@@ -1,6 +1,7 @@
-from modules import logger
+import offline_logger
 import libpcap
 
+logger = offline_logger.get_logger()
 
 def traffic_from_file_libpcap(path_to_file, filter):
     try:

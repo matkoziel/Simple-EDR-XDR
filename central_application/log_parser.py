@@ -2,7 +2,7 @@ import cmd
 import os
 import re
 
-from modules import offline_logger
+import offline_logger
 
 logger = offline_logger.get_logger()
 
