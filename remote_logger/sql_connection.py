@@ -31,8 +31,9 @@ def get_logs():
     statement = """SELECT * FROM LOGS"""
     cur.execute(statement)
     output = cur.fetchall()
+    items = []
     for row in output:
-        print(row)
+        items.append({'date':row[0], 'time':row[1], 'type':row[2], 'message':row[3]})
     con.commit()
     con.close()
-
+    return items
