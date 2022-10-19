@@ -4,10 +4,10 @@ def init():
     con = sqlite3.connect('LOG_DB.db')
     cur = con.cursor()
     print('Initializing connection...')
-    listOfTables = cur.execute("""SELECT tableName FROM sqlite_master WHERE type='table' AND tableName='LOGS'; """).fetchall()
+    listOfTables = cur.execute("""SELECT name FROM sqlite_master WHERE type='table' AND name='LOGS'; """).fetchall()
  
     if listOfTables == []:
-            cur.execute("""CREATE TABLE LOGS(DATE CHAR(10),TIME VARCHAR(12), TYPE VARCHAR(10), MESSAGE VARCHAR (100);""")
+            cur.execute("""CREATE TABLE LOGS(DATE CHAR(10),TIME VARCHAR(12), TYPE VARCHAR(10), MESSAGE VARCHAR (100));""")
             print('Connection with database initialized')
     else:  
             print('Connection with database initialized')
