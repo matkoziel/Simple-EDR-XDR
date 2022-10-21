@@ -1,4 +1,4 @@
-from modules import log_parser 
+from central_application import log_parser 
 
 def main():
     log_parser.grep("resources/test.txt","-c 1")
