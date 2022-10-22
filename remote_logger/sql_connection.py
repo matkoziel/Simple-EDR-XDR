@@ -5,22 +5,19 @@ def init():
     cur = con.cursor()
     print('Initializing connection...')
     listOfTables = cur.execute("""SELECT name FROM sqlite_master WHERE type='table' AND name='LOGS'; """).fetchall()
- 
     if listOfTables == []:
-            cur.execute("""CREATE TABLE LOGS(DATE CHAR(10),TIME VARCHAR(12), TYPE VARCHAR(10), MESSAGE VARCHAR (100));""")
+            cur.execute("""CREATE TABLE LOGS(TYPE VARCHAR(10), DATE CHAR(10),TIME VARCHAR(12),FILENAME VARCHAR(50), MESSAGE VARCHAR(250));""")
             print('Connection with database initialized')
     else:  
             print('Connection with database initialized')
     con.commit()
     con.close()
 
-def insert_log(full_date, type, message):
+def insert_log(type, date, time, filename,message):
     con = sqlite3.connect('LOG_DB.db')
     cur = con.cursor()
-    date = full_date.split(' ')[0]
-    time = full_date.split(' ')[1]
-    data = (date, time, type, message)
-    statement = """INSERT INTO LOGS(DATE, TIME, TYPE, MESSAGE) VALUES(?, ?, ?, ?)"""
+    data = (type, date, time, filename, message)
+    statement = """INSERT INTO LOGS(TYPE, DATE, TIME, FILENAME, MESSAGE) VALUES(?, ?, ?, ?, ?)"""
     cur.execute(statement, data)
     con.commit()
     con.close()
@@ -33,7 +30,7 @@ def get_logs():
     output = cur.fetchall()
     items = []
     for row in output:
-        items.append({'date':row[0], 'time':row[1], 'type':row[2], 'message':row[3]})
+        items.append({'type':row[0], 'date':row[1], 'time':row[2], 'filename':row[3], 'message':row[4]})
     con.commit()
     con.close()
     return items
