@@ -6,7 +6,6 @@ import time
 class insert_log(Resource):
     def post(self):
         json_data = request.form
-        print(json_data)
         type = json_data['levelname']
         msg = json_data['msg']
         filename = json_data['filename']
