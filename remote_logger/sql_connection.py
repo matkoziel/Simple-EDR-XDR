@@ -34,3 +34,16 @@ def get_logs():
     con.commit()
     con.close()
     return items
+
+def get_specific_logs(filter):
+    con = sqlite3.connect('LOG_DB.db')
+    cur = con.cursor()
+    statement = """SELECT * FROM LOGS WHERE """ + filter
+    cur.execute(statement)
+    output = cur.fetchall()
+    items = []
+    for row in output:
+        items.append({'type':row[0], 'date':row[1], 'time':row[2],'logger':row[3],'module':row[4], 'message':row[5]})
+    con.commit()
+    con.close()
+    return items
