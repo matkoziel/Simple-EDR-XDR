@@ -49,10 +49,17 @@ def show_pcap():
     pass
 
 @show_pcap.command('use_libpcap')
-@click.option('-p','--path',type=click.File('r'))
+@click.option('-p','--path',type=click.File('r'),required=True)
 @click.option('-f','--filter',default='', type=click.STRING)
 def use_libpcap(path, filter):
-    click.echo(str(path) + filter)
+    if filter:
+        try:
+            full_path = os.path.abspath(path.name)
+            result = pcap_analysis.traffic_from_file_libpcap(full_path,filter)
+            for res in result:
+                print(res)
+        except Exception as e:
+            print(e)
 
 @show_pcap.command('use_tshark')
 @click.option('-p','--path',type=click.File('r'),required=True)
@@ -78,12 +85,15 @@ def get_logs(start,end):
         #TODO: REST API for parametrized request
         pass
     else:
-        host=config.get('REMOTE_LOGGER_HOST').data
-        port=config.get('REMOTE_LOGGER_PORT').data
-        uri="http://{host}:{port}/get_logs".format(host=host,port=port)
-        resposne = requests.get(url=uri)
-        data = resposne.json()
-        print(data)
+        try:
+            host=config.get('REMOTE_LOGGER_HOST').data
+            port=config.get('REMOTE_LOGGER_PORT').data
+            uri="http://{host}:{port}/get_logs".format(host=host,port=port)
+            resposne = requests.get(url=uri)
+            data = resposne.json()
+            print(data)
+        except Exception as e:
+            print(e)
 
 
 if __name__ == '__main__':
