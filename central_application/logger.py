@@ -23,4 +23,3 @@ remote_logger.addHandler(http_handler)
 def get_remote_logger():
     return remote_logger
 
-remote_logger.error('test')
