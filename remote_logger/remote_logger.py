@@ -21,10 +21,17 @@ class get_logs(Resource):
     def get(self):
         return(sql_connection.get_logs())
 
+class get_specific_logs(Resource):
+    def post(sefl):
+        json_data = request.form
+        query = json_data['filter']
+        return(sql_connection.get_specific_logs(query))
+
 if __name__ == '__main__':
     app = Flask(__name__)
     api = Api(app)
     sql_connection.init()
     api.add_resource(insert_log, '/insert_log')
     api.add_resource(get_logs, '/get_logs')
+    api.add_resource(get_specific_logs, '/get_specific_logs')
     app.run(host='0.0.0.0', port = 3000, debug=True)
