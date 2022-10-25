@@ -44,57 +44,56 @@ def use_grep(regex,path):
     except Exception as e:
         print(e)
 
-@cli.group('show_pcap')
-def show_pcap():
-    pass
-
-@show_pcap.command('use_libpcap')
+@cli.command('show_pcap')
 @click.option('-p','--path',type=click.File('r'),required=True)
 @click.option('-f','--filter',default='', type=click.STRING)
-def use_libpcap(path, filter):
+def show_pcap(path, filter):
     if filter:
         try:
             full_path = os.path.abspath(path.name)
-            result = pcap_analysis.traffic_from_file_libpcap(full_path,filter)
+            result = pcap_analysis.traffic_from_file_pyshark(full_path,filter)
+            for res in result:
+                print(res)
+        except Exception as e:
+            print(e)
+    else:
+        try:
+            full_path = os.path.abspath(path.name)
+            result = pcap_analysis.traffic_from_file_pyshark(full_path,"")
             for res in result:
                 print(res)
         except Exception as e:
             print(e)
 
-@show_pcap.command('use_tshark')
-@click.option('-p','--path',type=click.File('r'),required=True)
-@click.option('-f','--filter',default='', type=click.STRING)
-def use_libpcap(path, filter):
-    click.echo(str(path) + filter)
-
 @cli.group('remote_logger')
 def remote_logger():
     pass
 
-@remote_logger.command('get_logs')
-@click.option('-s','--start',type=click.STRING)
-@click.option('-e','--end',type=click.STRING)
-def get_logs(start,end):
-    if start and not end:
-        #TODO: REST API for parametrized request
-        pass
-    elif end and not start:
-        #TODO: REST API for parametrized request
-        pass
-    elif start and end:
-        #TODO: REST API for parametrized request
-        pass
-    else:
-        try:
-            host=config.get('REMOTE_LOGGER_HOST').data
-            port=config.get('REMOTE_LOGGER_PORT').data
-            uri="http://{host}:{port}/get_logs".format(host=host,port=port)
-            resposne = requests.get(url=uri)
-            data = resposne.json()
-            print(data)
-        except Exception as e:
-            print(e)
+@remote_logger.command('get_all_logs')
+def get_all_logs():
+    try:
+        host=config.get('REMOTE_LOGGER_HOST').data
+        port=config.get('REMOTE_LOGGER_PORT').data
+        uri="http://{host}:{port}/get_logs".format(host=host,port=port)
+        resposne = requests.get(url=uri)
+        data = resposne.json()
+        print(data)
+    except Exception as e:
+        print(e)
 
+@remote_logger.command('get_logs')
+@click.option('-r','--request',type=click.STRING)
+def get_logs(request):
+    try:
+        host=config.get('REMOTE_LOGGER_HOST').data
+        port=config.get('REMOTE_LOGGER_PORT').data
+        uri="http://{host}:{port}/get_specific_logs".format(host=host,port=port)
+        PARAMS = {'filter':request}
+        resposne = requests.request(method='get', url=uri, data=PARAMS)
+        data = resposne.json()
+        print(data)
+    except Exception as e:
+        print(e)
 
 if __name__ == '__main__':
     config = Properties()

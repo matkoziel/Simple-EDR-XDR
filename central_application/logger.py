@@ -7,7 +7,7 @@ import logging.handlers
 #                    filemode='w')
 
 #offline_logger = logging.getLogger()
-#offline_logger.setLevel(logging.DEBUG)
+# offline_logger.setLevel(logging.DEBUG)
 
 #def get_offline_logger():
 #    return offline_logger
@@ -19,7 +19,7 @@ http_handler = logging.handlers.HTTPHandler(
     method='POST',
 )
 remote_logger.addHandler(http_handler)
-
+remote_logger.setLevel(logging.DEBUG)
 def get_remote_logger():
     return remote_logger
 
