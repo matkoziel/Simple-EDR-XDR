@@ -22,7 +22,7 @@ class get_logs(Resource):
         return(sql_connection.get_logs())
 
 class get_specific_logs(Resource):
-    def post(sefl):
+    def get(sefl):
         json_data = request.form
         query = json_data['filter']
         return(sql_connection.get_specific_logs(query))

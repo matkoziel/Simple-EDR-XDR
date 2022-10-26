@@ -18,9 +18,9 @@ http_handler = logging.handlers.HTTPHandler(
     '/insert_log',
     method='POST',
 )
+
 remote_logger.addHandler(http_handler)
 
+remote_logger.setLevel(logging.DEBUG)
 def get_remote_logger():
     return remote_logger
-
-remote_logger.error('test')
