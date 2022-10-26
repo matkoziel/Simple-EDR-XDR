@@ -1,9 +1,17 @@
+from email import message
 import click
 import requests
 from jproperties import Properties
 import log_parser
 import pcap_analysis
 import os
+
+def prepare_log(data):
+    result=[]
+    for log in data:
+        one_log = "{date} \t{time}\t{type}\t{app}\t{module}\t{message}".format(date=log["date"], time=log["time"], type=log["type"], app=log["logger"], module=log["module"], message=log["message"])
+        result.append(one_log)
+    return result
 
 @click.group()
 def cli():
@@ -77,7 +85,8 @@ def get_all_logs():
         uri="http://{host}:{port}/get_logs".format(host=host,port=port)
         resposne = requests.get(url=uri)
         data = resposne.json()
-        print(data)
+        for i in prepare_log(data):
+            print(i)
     except Exception as e:
         print(e)
 
