@@ -136,13 +136,20 @@ def remote_agent():
 
 @remote_agent.command("list_rules")
 def list_rules():
-    offline_logger.info("test")
-    module = __import__("detection_rules") 
+    module = __import__("detection_rules")
     import detection_rules
     functions_list = getmembers(detection_rules, isfunction)
-    # for function_name in functions_list:
-    #     func = getattr(module, function_name[0])
-    #     func()
+    for function_name in functions_list:
+        print(function_name)
+
+@remote_agent.command("run_all_rules")
+def run_all_rules():
+    module = __import__("detection_rules")
+    import detection_rules
+    functions_list = getmembers(detection_rules, isfunction)
+    for function_name in functions_list:
+        func = getattr(module, function_name[0])
+        func()
 
 if __name__ == '__main__':
     offline_logger=logger.get_offline_logger()
