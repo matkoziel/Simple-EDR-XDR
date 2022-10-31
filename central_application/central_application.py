@@ -1,3 +1,4 @@
+from beaupy import select_multiple
 import click
 import requests
 from jproperties import Properties
@@ -14,6 +15,7 @@ def prepare_log(data):
         one_log = "{date} {time} {type} {app} {module} {message}".format(date=log["date"], time=log["time"], type=log["type"], app=log["logger"], module=log["module"], message=log["message"])
         result.append(one_log)
     return result
+
 
 @click.group()
 def cli():
@@ -143,13 +145,34 @@ def list_rules():
         print(function_name)
 
 @remote_agent.command("run_all_rules")
-def run_all_rules():
+@click.option('-p','--pcap',type=click.STRING,default="")
+@click.option('-e','--evtx',type=click.STRING,default="")
+@click.option('-x','--xml',type=click.STRING,default="")
+@click.option('-j','--json',type=click.STRING,default="")
+@click.option('-t','--txt',type=click.STRING,default="")
+def run_all_rules(pcap, evtx, xml, json, txt):
     module = __import__("detection_rules")
     import detection_rules
     functions_list = getmembers(detection_rules, isfunction)
     for function_name in functions_list:
         func = getattr(module, function_name[0])
-        func()
+        func(pcap=pcap,evtx=evtx,xml=xml,json=json,txt=txt)
+
+@remote_agent.command("run_rules")
+@click.option('-p','--pcap',type=click.STRING,default="")
+@click.option('-e','--evtx',type=click.STRING,default="")
+@click.option('-x','--xml',type=click.STRING,default="")
+@click.option('-j','--json',type=click.STRING,default="")
+@click.option('-t','--txt',type=click.STRING,default="")
+def run_rules(pcap, evtx, xml, json, txt):
+    module = __import__("detection_rules")
+    import detection_rules
+    functions_list_temp = getmembers(detection_rules, isfunction)
+    functions_list = [i[0] for i in functions_list_temp]
+    select = select_multiple(functions_list,minimal_count=1)
+    for function_name in select:
+        func = getattr(module, function_name)
+        func(pcap=pcap,evtx=evtx,xml=xml,json=json,txt=txt)
 
 if __name__ == '__main__':
     offline_logger=logger.get_offline_logger()
