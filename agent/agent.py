@@ -18,12 +18,13 @@ class get_log_list(Resource):
 class get_chosen_logs(Resource):
     def get(self):
         json_data = request.get_json()
+        response = []
         for file in json_data:
             if logs.get_specific_log(file) != -1:
-                send_file(logs.get_specific_log(file))
-                return logs.get_specific_log(file)
+                response.append({file:'ok'})
             else:
-                return ("No such file: " + logs.get_specific_log(file))
+                response.append({file:'no such file'}) 
+        return response
 
 class get_network_config(Resource):
     def get(self):
@@ -35,13 +36,14 @@ class get_pcaps_list(Resource):
 
 class get_chosen_pcaps(Resource):
     def get(self):
-        json_data = request.form
+        json_data = request.get_json()
+        response = []
         for file in json_data:
             if network.get_specific_pcap(file) != -1:
-                send_file(network.get_specific_pcap(file))
-                return network.get_specific_pcap(file)
+                response.append({file:'OK'})
             else:
-                return ("No such file: " + network.get_specific_pcap(file))
+                response.append({file:'No such file'})
+        return response
                 
 
 class sniffing(Resource):
