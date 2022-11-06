@@ -7,7 +7,7 @@ import remote_control
 
 class execute_command(Resource):
     def post(self):
-        json_data = request.form
+        json_data = request.get_json()
         output = remote_control.execute_command(json_data['command'])
         return jsonify(command = json_data['command'], output = output)
 
@@ -17,7 +17,13 @@ class get_log_list(Resource):
 
 class get_chosen_logs(Resource):
     def get(self):
-        print('to do')
+        json_data = request.get_json()
+        for file in json_data:
+            if logs.get_specific_log(file) != -1:
+                send_file(logs.get_specific_log(file))
+                return logs.get_specific_log(file)
+            else:
+                return ("No such file: " + logs.get_specific_log(file))
 
 class get_network_config(Resource):
     def get(self):
@@ -29,11 +35,18 @@ class get_pcaps_list(Resource):
 
 class get_chosen_pcaps(Resource):
     def get(self):
-        print('to do')
+        json_data = request.form
+        for file in json_data:
+            if network.get_specific_pcap(file) != -1:
+                send_file(network.get_specific_pcap(file))
+                return network.get_specific_pcap(file)
+            else:
+                return ("No such file: " + network.get_specific_pcap(file))
+                
 
 class sniffing(Resource):
     def post(self):
-        json_data = request.form
+        json_data = request.get_json()
         interface = json_data['interface']
         filter = json_data['filter']
         file_name = json_data['file_name']

@@ -5,7 +5,7 @@ import time
 
 class insert_log(Resource):
     def post(self):
-        json_data = request.form
+        json_data = request.get_json()
         logger = json_data['name']
         type = json_data['levelname']
         msg = json_data['msg']
@@ -23,7 +23,7 @@ class get_logs(Resource):
 
 class get_specific_logs(Resource):
     def get(sefl):
-        json_data = request.form
+        json_data = request.get_json()
         query = json_data['filter']
         return(sql_connection.get_specific_logs(query))
 
