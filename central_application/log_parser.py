@@ -4,7 +4,7 @@ import re
 import logger
 
 remote_logger = logger.get_remote_logger()
-#offline_logger = logger.get_offline_logger()
+offline_logger = logger.get_offline_logger()
 
 def grep(filename, options):
     command = "grep {opt} {file}".format(opt=options, file=filename)

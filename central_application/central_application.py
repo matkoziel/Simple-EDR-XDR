@@ -1,17 +1,21 @@
-from email import message
+from beaupy import select_multiple
 import click
 import requests
 from jproperties import Properties
 import log_parser
 import pcap_analysis
 import os
+import logger
+from inspect import getmembers, isfunction
+from detection_rules import *
 
 def prepare_log(data):
     result=[]
     for log in data:
-        one_log = "{date} \t{time}\t{type}\t{app}\t{module}\t{message}".format(date=log["date"], time=log["time"], type=log["type"], app=log["logger"], module=log["module"], message=log["message"])
+        one_log = "{date} {time} {type} {app} {module} {message}".format(date=log["date"], time=log["time"], type=log["type"], app=log["logger"], module=log["module"], message=log["message"])
         result.append(one_log)
     return result
+
 
 @click.group()
 def cli():
@@ -100,11 +104,78 @@ def get_logs(request):
         PARAMS = {'filter':request}
         resposne = requests.request(method='get', url=uri, data=PARAMS)
         data = resposne.json()
-        print(data)
+        for i in prepare_log(data):
+            print(i)
     except Exception as e:
         print(e)
 
+@remote_logger.command('export_logs')
+@click.option('-r','--request',type=click.STRING)
+@click.option('-p','--path',type=click.File('w+'),required=True)
+def get_logs(request, path):
+    try:
+        host=config.get('REMOTE_LOGGER_HOST').data
+        port=config.get('REMOTE_LOGGER_PORT').data
+        if request:
+            uri="http://{host}:{port}/get_specific_logs".format(host=host,port=port)
+            PARAMS = {'filter':request}
+            resposne = requests.request(method='get', url=uri, data=PARAMS)
+            data = resposne.json()
+        else:
+            uri="http://{host}:{port}/get_logs".format(host=host,port=port)
+            PARAMS = {'filter':request}
+            resposne = requests.request(method='get', url=uri, data=PARAMS)
+            data = resposne.json()
+        for i in prepare_log(data):
+            path.write(i + '\n')
+        path.close()
+    except Exception as e:
+        print(e)
+
+@cli.group('remote_agent')
+def remote_agent():
+    pass
+
+@remote_agent.command("list_rules")
+def list_rules():
+    module = __import__("detection_rules")
+    import detection_rules
+    functions_list = getmembers(detection_rules, isfunction)
+    for function_name in functions_list:
+        print(function_name)
+
+@remote_agent.command("run_all_rules")
+@click.option('-p','--pcap',type=click.STRING,default="")
+@click.option('-e','--evtx',type=click.STRING,default="")
+@click.option('-x','--xml',type=click.STRING,default="")
+@click.option('-j','--json',type=click.STRING,default="")
+@click.option('-t','--txt',type=click.STRING,default="")
+def run_all_rules(pcap, evtx, xml, json, txt):
+    module = __import__("detection_rules")
+    import detection_rules
+    functions_list = getmembers(detection_rules, isfunction)
+    for function_name in functions_list:
+        func = getattr(module, function_name[0])
+        func(pcap=pcap,evtx=evtx,xml=xml,json=json,txt=txt)
+
+@remote_agent.command("run_rules")
+@click.option('-p','--pcap',type=click.STRING,default="")
+@click.option('-e','--evtx',type=click.STRING,default="")
+@click.option('-x','--xml',type=click.STRING,default="")
+@click.option('-j','--json',type=click.STRING,default="")
+@click.option('-t','--txt',type=click.STRING,default="")
+def run_rules(pcap, evtx, xml, json, txt):
+    module = __import__("detection_rules")
+    import detection_rules
+    functions_list_temp = getmembers(detection_rules, isfunction)
+    functions_list = [i[0] for i in functions_list_temp]
+    select = select_multiple(functions_list,minimal_count=1)
+    for function_name in select:
+        func = getattr(module, function_name)
+        func(pcap=pcap,evtx=evtx,xml=xml,json=json,txt=txt)
+
 if __name__ == '__main__':
+    offline_logger=logger.get_offline_logger()
     config = Properties()
     with open('resources/app.properties','rb') as app_properties:
         config.load(app_properties,"utf-8")
