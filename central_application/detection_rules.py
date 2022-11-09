@@ -1,6 +1,7 @@
 import re 
 import pcap_analysis
 import Evtx.Evtx as evtx 
+import xml.etree.ElementTree as ET
 
 def funkcja_testowa(**kwargs):
 
@@ -9,12 +10,15 @@ def funkcja_testowa(**kwargs):
         pass
 
     with evtx.Evtx(kwargs["evtx"]) as event_log:
-        res=[]
-        for record in event_log.records():
-            res.append(record.xml())
-        kwargs["evtx"]=res
-    for evtx_ in kwargs["evtx"]:
-        print(evtx_)
+        # res=[]
+        # for record in event_log.records():
+        #     res.append(record.lxml())
+        # kwargs["evtx"]=res
+
+        root = ET.fromstring(event_log.records())
+    print(root.findall("0x8000000000000000"))
+    # for evtx_ in kwargs["evtx"]:
+        
 
     for xml in kwargs["xml"]:
         # procesowanie json
