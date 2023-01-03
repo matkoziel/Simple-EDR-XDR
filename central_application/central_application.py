@@ -9,6 +9,11 @@ import logger
 from inspect import getmembers, isfunction
 from detection_rules import *
 
+config = Properties()
+
+def get_config():
+    return config
+
 def prepare_log(data):
     result=[]
     for log in data:
@@ -132,11 +137,11 @@ def get_logs(request, path):
     except Exception as e:
         print(e)
 
-@cli.group('remote_agent')
-def remote_agent():
+@cli.group('detection_rules')
+def detection_rules():
     pass
 
-@remote_agent.command("list_rules")
+@detection_rules.command("list_rules")
 def list_rules():
     module = __import__("detection_rules")
     import detection_rules
@@ -144,7 +149,7 @@ def list_rules():
     for function_name in functions_list:
         print(function_name)
 
-@remote_agent.command("run_all_rules")
+@detection_rules.command("run_all_rules")
 @click.option('-p','--pcap',type=click.STRING,default="")
 @click.option('-e','--evtx',type=click.STRING,default="")
 @click.option('-x','--xml',type=click.STRING,default="")
@@ -158,7 +163,7 @@ def run_all_rules(pcap, evtx, xml, json, txt):
         func = getattr(module, function_name[0])
         func(pcap=pcap,evtx=evtx,xml=xml,json=json,txt=txt)
 
-@remote_agent.command("run_rules")
+@detection_rules.command("run_rules")
 @click.option('-p','--pcap',type=click.STRING,default="")
 @click.option('-e','--evtx',type=click.STRING,default="")
 @click.option('-x','--xml',type=click.STRING,default="")
@@ -174,9 +179,96 @@ def run_rules(pcap, evtx, xml, json, txt):
         func = getattr(module, function_name)
         func(pcap=pcap,evtx=evtx,xml=xml,json=json,txt=txt)
 
+@cli.group('remote_agent')
+def remote_agent():
+    pass
+
+@remote_agent.command("get_net_config")
+@click.option('-a','--agent',type=click.STRING, required=True)
+@click.option('-p','--port',type=click.STRING, required=True)
+def get_net_config(agent,port):
+    uri=f"http://{agent}:{port}/get_network_config"
+    resposne = requests.get(url=uri)
+    data = resposne.json()
+    print(data)
+
+@remote_agent.command("capture_traffic")
+@click.option('-a','--agent',type=click.STRING, required=True)
+@click.option('-p','--port',type=click.STRING, required=True)
+@click.option('-i','--interface',type=click.STRING, required=True)
+@click.option('-f','--filter',type=click.STRING, default="")
+@click.option('-w','--write',type=click.STRING, required=True)
+@click.option('-t','--time',type=click.STRING, required=True)
+def capture_traffic(agent,port,interface,filter,write,time):
+    uri=f"http://{agent}:{port}/sniffing"
+    PARAMS = {'interface':interface,'filter':filter,'file_name':write,'sniff_time':time}
+    resposne = requests.request(method='post', url=uri, json=PARAMS, headers={"Content-Type":"application/json"})
+    data = resposne.json()
+    print(data)
+
+@remote_agent.command("list_logs")
+@click.option('-a','--agent',type=click.STRING, required=True)
+@click.option('-p','--port',type=click.STRING, required=True)
+def list_logs(agent,port):
+    uri=f"http://{agent}:{port}/get_log_list"
+    resposne = requests.get(url=uri)
+    data = resposne.json()
+    print(f"Log files on agent {agent}:{port}:")
+    print(data)
+
+@remote_agent.command("get_logs")
+@click.option('-a','--agent',type=click.STRING, required=True)
+@click.option('-p','--port',type=click.STRING, required=True)
+@click.option('-f','--file',type=click.STRING, required=True)
+def get_logs(agent,port,file):
+    uri=f"http://{agent}:{port}/get_chosen_logs"
+    resposne = requests.get(url=uri)
+    PARAMS = {'file':file}
+    resposne = requests.request(method='get', url=uri, json=PARAMS, headers={"Content-Type":"application/json"})
+    data = resposne.json()
+    print(f"Log files on agent {agent}:{port}:")
+    print(data)
+
+@remote_agent.command("get_pcaps_list")
+@click.option('-a','--agent',type=click.STRING, required=True)
+@click.option('-p','--port',type=click.STRING, required=True)
+def get_pcaps_list(agent,port):
+    uri=f"http://{agent}:{port}/get_pcaps_list"
+    resposne = requests.get(url=uri)
+    data = resposne.json()
+    print(f"Log files on agent {agent}:{port}:")
+    print(data)
+
+@remote_agent.command("get_chosen_pcaps")
+@click.option('-a','--agent',type=click.STRING, required=True)
+@click.option('-p','--port',type=click.STRING, required=True)
+@click.option('-f','--file',type=click.STRING, required=True)
+def get_chosen_pcaps(agent,port,file):
+    uri=f"http://{agent}:{port}/get_chosen_pcaps"
+    resposne = requests.get(url=uri)
+    PARAMS = {'file':file}
+    resposne = requests.request(method='get', url=uri, json=PARAMS, headers={"Content-Type":"application/json"})
+    data = resposne.json()
+    print(f"Log files on agent {agent}:{port}:")
+    print(data)
+    
+
+@remote_agent.command("cmd")
+@click.option('-a','--agent',type=click.STRING, required=True)
+@click.option('-p','--port',type=click.STRING, required=True)
+@click.option('-c','--command',type=click.STRING)
+def cmd(agent,port,command):
+    uri=f"http://{agent}:{port}/execute_command"
+    PARAMS = {'command':command}
+    resposne = requests.request(method='post', url=uri, json=PARAMS)
+    data = resposne.json()
+    if (data is not None) or (data != ''):
+        result = data['output'] 
+        print (f'Result of {command} is: \n{result}')
+
+
 if __name__ == '__main__':
-    offline_logger=logger.get_offline_logger()
-    config = Properties()
     with open('resources/app.properties','rb') as app_properties:
         config.load(app_properties,"utf-8")
+    offline_logger=logger.get_offline_logger()
     cli()
