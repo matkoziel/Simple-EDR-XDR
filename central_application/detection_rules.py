@@ -2,23 +2,25 @@ import re
 import pcap_analysis
 import Evtx.Evtx as evtx 
 import xml.etree.ElementTree as ET
+import Evtx.Views as e_views
 
 def funkcja_testowa(**kwargs):
 
+    # Parse pcap
     kwargs["pcap"]=pcap_analysis.traffic_from_file_pyshark(kwargs["pcap"],"")
     for pcap in kwargs["pcap"]:
         pass
 
+    # Parse evtx
     with evtx.Evtx(kwargs["evtx"]) as event_log:
-        # res=[]
-        # for record in event_log.records():
-        #     res.append(record.lxml())
-        # kwargs["evtx"]=res
+       result = ""
+       result += e_views.XML_HEADER + "\n"
+       result += "<Events>\n"
+       for record in event_log.records():
+            result+=record.xml() + "\n"
+       result += "</Events>\n"
 
-        root = ET.fromstring(event_log.records())
-    print(root.findall("0x8000000000000000"))
-    # for evtx_ in kwargs["evtx"]:
-        
+    print(result)
 
     for xml in kwargs["xml"]:
         # procesowanie json
