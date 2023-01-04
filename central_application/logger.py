@@ -7,8 +7,8 @@ offline_logger = logging.getLogger('Offline')
 
 config = Properties()
 
-#logging.basicConfig(filename="resources/Simple-EDR-XDR-{time}.log".format(time=datetime.now().strftime("%d-%m-%Y-%H:%M:%S")),
-logging.basicConfig(filename="resources/Simple-EDR-XDR.log",
+logging.basicConfig(filename="resources/Simple-EDR-XDR-{time}.log".format(time=datetime.now().strftime("%d-%m-%Y-%H:%M:%S")),
+#logging.basicConfig(filename="resources/Simple-EDR-XDR.log",
                    format='%(levelname)s %(asctime)s %(name)s %(module)s.%(funcName)s %(message)s',
                    filemode='w')
 
