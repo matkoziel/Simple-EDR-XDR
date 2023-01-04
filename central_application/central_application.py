@@ -1,3 +1,6 @@
+import shutil
+from pathlib import Path
+
 from beaupy import select_multiple
 import click
 import requests
@@ -266,6 +269,48 @@ def cmd(agent,port,command):
         result = data['output'] 
         print (f'Result of {command} is: \n{result}')
 
+"""
+
+@cli.group("SIGMA")
+def SIGMA():
+    pass
+
+@SIGMA.command("add_new_ruleset")
+@click.option('-f','--file',type=click.STRING,required=True)
+def add_new_ruleset(file):
+    path = Path(file)
+    if path.is_file():
+        #add file to SIGMA_rules
+        shutil.copy2(path, "central_application/SIGMA_rules")
+    if path.is_dir():
+        #add files to SIGMA_rules
+        files = os.listdir(path)
+        for f in files:
+            fp = Path(f)
+            if fp.is_file():
+                if fp.suffix in [".json",".evtx"]:
+                    shutil.copy2(os.path.join(path,fp),"central_application/SIGMA_rules")
+                else:
+                    print(fp, " is not a valid file (use .json,.evtx)")
+            else:
+                print(fp, " is not a file")
+    else:
+        print("bad file path")
+
+
+@SIGMA.command("run_sigma")
+@click.option('-e','--evtx',type=click.STRING,required=True)
+@click.option('-r','--rules',type=click.STRING,default='',required=False)
+def run_sigma(evtx,rules):
+    print("will run rules from: ", rules, " on logs in: ", evtx)
+    #run zircolite
+    cmd = "python Zircolite.py --evtx {}".format(evtx)
+    if rules != '':
+        cmd += (" --rules {}".format(rules))
+    os.system(cmd)
+    print("check SIGMA_detected_events.json")
+
+"""
 
 if __name__ == '__main__':
     with open('resources/app.properties','rb') as app_properties:

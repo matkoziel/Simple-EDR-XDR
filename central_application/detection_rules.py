@@ -1,6 +1,6 @@
 import re 
 import pcap_analysis
-import Evtx.Evtx as evtx 
+import Evtx.Evtx as evtx
 import xml.etree.ElementTree as ET
 import Evtx.Views as e_views
 
