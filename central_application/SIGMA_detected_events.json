@@ -1,0 +1,97 @@
+[{
+  "title": "Security Eventlog Cleared",
+  "id": "d99b79d2-0a6f-4f46-ad8b-260b6e17f982",
+  "description": "One of the Windows Eventlogs has been cleared. e.g. caused by \"wevtutil cl\" command execution",
+  "sigmafile": "win_security_susp_eventlog_cleared.yml",
+  "sigma": [
+    "SELECT * FROM logs WHERE (Channel = 'Security' AND ((EventID = '517' AND Provider_Name = 'Security') OR (EventID = '1102' AND Provider_Name = 'Microsoft-Windows-Eventlog')))"
+  ],
+  "rule_level": "high",
+  "tags": [
+    "attack.defense_evasion",
+    "attack.t1070.001",
+    "car.2016-04-002"
+  ],
+  "count": 1,
+  "matches": [
+    {
+      "row_id": 101,
+      "ProcessID": 820,
+      "Channel": "Security",
+      "Computer": "PC01.example.corp",
+      "EventID": 1102,
+      "EventRecordID": 227693,
+      "ThreadID": 608,
+      "Keywords": "0x4020000000000000",
+      "Level": 4,
+      "Opcode": 0,
+      "Guid": "{fc65ddd8-d6ef-4962-83d5-6e5cfe9ce148}",
+      "Provider_Name": "Microsoft-Windows-Eventlog",
+      "Task": 104,
+      "SystemTime": "2019-02-13T18:01:41.593830Z",
+      "Version": 0,
+      "OriginalLogfile": "DE_RDP_Tunnel_5156.evtx-QA9GM7WT.json",
+      "SubjectDomainName": "EXAMPLE",
+      "SubjectLogonId": "0xaf855",
+      "SubjectUserName": "admin01",
+      "SubjectUserSid": "S-1-5-21-1587066498-1489273250-1035260531-1108"
+    }
+  ]
+},
+{
+  "title": "RDP Login from Localhost",
+  "id": "51e33403-2a37-4d66-a574-1fda1782cc31",
+  "description": "RDP login with localhost source address may be a tunnelled login",
+  "sigmafile": "win_security_rdp_localhost_login.yml",
+  "sigma": [
+    "SELECT * FROM logs WHERE (Channel = 'Security' AND EventID = '4624' AND LogonType = '10' AND IpAddress IN ('::1', '127.0.0.1'))"
+  ],
+  "rule_level": "high",
+  "tags": [
+    "attack.lateral_movement",
+    "car.2013-07-002",
+    "attack.t1021.001"
+  ],
+  "count": 1,
+  "matches": [
+    {
+      "row_id": 51,
+      "ProcessID": 520,
+      "Channel": "Security",
+      "Computer": "PC01.example.corp",
+      "EventID": 4624,
+      "EventRecordID": 227762,
+      "ThreadID": 3980,
+      "Keywords": "0x8020000000000000",
+      "Level": 0,
+      "Opcode": 0,
+      "Guid": "54849625-5478-4994-A5BA-3E3B0328C30D",
+      "Provider_Name": "Microsoft-Windows-Security-Auditing",
+      "Task": 12544,
+      "SystemTime": "2019-02-13T18:04:58.363696Z",
+      "Version": 0,
+      "OriginalLogfile": "DE_RDP_Tunnel_5156.evtx-QA9GM7WT.json",
+      "SubjectDomainName": "EXAMPLE",
+      "SubjectLogonId": "0x3e7",
+      "SubjectUserName": "PC01$",
+      "SubjectUserSid": "S-1-5-18",
+      "ActivityID": "94862AEA-0C0C-4B98-88B1-A269075A77E2",
+      "AuthenticationPackageName": "Negotiate",
+      "IpAddress": "127.0.0.1",
+      "IpPort": "49274",
+      "KeyLength": 0,
+      "LmPackageName": "-",
+      "LogonGuid": "AF83A89C-C68A-5397-5AC6-24A0C4D2BAF6",
+      "LogonProcessName": "User32 ",
+      "LogonType": 10,
+      "ProcessName": "C:\\Windows\\System32\\winlogon.exe",
+      "TargetDomainName": "EXAMPLE",
+      "TargetLogonId": "0x14a321",
+      "TargetUserName": "admin01",
+      "TargetUserSid": "S-1-5-21-1587066498-1489273250-1035260531-1108",
+      "TransmittedServices": "-",
+      "WorkstationName": "PC01"
+    }
+  ]
+},
+{}]
