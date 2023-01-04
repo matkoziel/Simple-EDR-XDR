@@ -985,7 +985,7 @@ class evtxExtractor:
     ):
         self.logger = logger or logging.getLogger(__name__)
         if Path(str(providedTmpDir)).is_dir():
-            self.tmpDir = f"SIGMA_files/tmp-{self.randString()}"
+            self.tmpDir = f"central_application/SIGMA_files/tmp-{self.randString()}"
             self.logger.error(
                 f"{Fore.RED}   [-] Provided directory already exists using '{self.tmpDir}' instead"
             )
@@ -1416,14 +1416,14 @@ if __name__ == "__main__":
         "--config",
         help="JSON File containing field mappings and exclusions",
         type=str,
-        default="SIGMA_files/config/fieldMappings.json",
+        default="central_application/SIGMA_files/config/fieldMappings.json",
     )
     parser.add_argument(
         "-o",
         "--outfile",
         help="File that will contains all detected events",
         type=str,
-        default="SIGMA_detected_events.json",
+        default="central_application/SIGMA_detected_events.json",
     )
     parser.add_argument(
         "--csv",
@@ -1452,7 +1452,7 @@ if __name__ == "__main__":
         type=str,
     )
     parser.add_argument(
-        "-l", "--logfile", help="Log file name", default="SIGMA_files/zircolite.log", type=str
+        "-l", "--logfile", help="Log file name", default="central_application/SIGMA_files/zircolite.log", type=str
     )
     parser.add_argument(
         "-n",
@@ -1618,7 +1618,7 @@ if __name__ == "__main__":
     if args.ruleset:
         args.ruleset = [item for args in args.ruleset for item in args]
     else:
-        args.ruleset = ["SIGMA_rules/rules_windows_generic.json"]
+        args.ruleset = ["central_application/SIGMA_rules/rules_windows_generic.json"]
 
     # Check mandatory CLI options
     if not args.evtx:
