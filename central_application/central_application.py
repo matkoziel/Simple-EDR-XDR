@@ -270,7 +270,7 @@ def cmd(agent,port,command):
         result = data['output'] 
         print (f'Result of {command} is: \n{result}')
 
-"""
+
 
 @cli.group("SIGMA")
 def SIGMA():
@@ -305,13 +305,13 @@ def add_new_ruleset(file):
 def run_sigma(evtx,rules):
     print("will run rules from: ", rules, " on logs in: ", evtx)
     #run zircolite
-    cmd = "python Zircolite.py --evtx {}".format(evtx)
+    cmd = "python central_application/Zircolite.py --evtx {}".format(evtx)
     if rules != '':
         cmd += (" --rules {}".format(rules))
     os.system(cmd)
-    print("check SIGMA_detected_events.json")
+    print("check central_application/SIGMA_detected_events.json")
 
-"""
+
 
 if __name__ == '__main__':
     with open('resources/app.properties','rb') as app_properties:
