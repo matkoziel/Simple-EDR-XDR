@@ -50,8 +50,8 @@ def funkcja_testowa(**kwargs):
                 error_counter = error_counter + 1
 
     if error_counter > 2:
-        action_alert = "Application may be down"
-        description = "More than 2 ERRORs occured"
+        action_alert = "remote" # remote local
+        description = "Application may be down - More than 2 ERRORs occured"
     else:
         action_alert = None
         description = None

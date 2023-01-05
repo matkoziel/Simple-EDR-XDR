@@ -181,7 +181,8 @@ def run_rules(pcap, evtx, xml, json, txt):
     for function_name in select:
         func = getattr(module, function_name)
         func(pcap=pcap,evtx=evtx,xml=xml,json=json,txt=txt)
-
+        jsonify(date = dmy, time = hms, rule_name = logger, message = msg)
+        
 @cli.group('remote_agent')
 def remote_agent():
     pass

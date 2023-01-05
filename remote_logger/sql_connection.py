@@ -1,12 +1,12 @@
 import sqlite3
 
 def init():
-    con = sqlite3.connect('LOG_DB.db')
+    con = sqlite3.connect('ALERT_DB.db')
     cur = con.cursor()
     print('Initializing connection...')
-    listOfTables = cur.execute("""SELECT name FROM sqlite_master WHERE type='table' AND name='LOGS'; """).fetchall()
+    listOfTables = cur.execute("""SELECT name FROM sqlite_master WHERE type='table' AND name='ALERTS'; """).fetchall()
     if listOfTables == []:
-            cur.execute("""CREATE TABLE LOGS(TYPE VARCHAR(10), DATE CHAR(10),TIME VARCHAR(12),LOGGER VARCHAR(20), MODULE VARCHAR(50), MESSAGE VARCHAR(250));""")
+            cur.execute("""CREATE TABLE ALERTS(DATE CHAR(10),TIME VARCHAR(12), RULE_NAME VARCHAR(20), MESSAGE VARCHAR(250));""")
             print('Connection with database initialized')
     else:  
             print('Connection with database initialized')
@@ -14,18 +14,18 @@ def init():
     con.close()
 
 def insert_log(type, date, time, logger, module, message):
-    con = sqlite3.connect('LOG_DB.db')
+    con = sqlite3.connect('ALERT_DB.db')
     cur = con.cursor()
     data = (type, date, time, logger,module, message)
-    statement = """INSERT INTO LOGS(TYPE, DATE, TIME, LOGGER, MODULE, MESSAGE) VALUES(?, ?, ?, ?, ?, ?)"""
+    statement = """INSERT INTO ALERTS(TYPE, DATE, TIME, LOGGER, MODULE, MESSAGE) VALUES(?, ?, ?, ?, ?, ?)"""
     cur.execute(statement, data)
     con.commit()
     con.close()
 
 def get_logs():
-    con = sqlite3.connect('LOG_DB.db')
+    con = sqlite3.connect('ALERT_DB.db')
     cur = con.cursor()
-    statement = """SELECT * FROM LOGS"""
+    statement = """SELECT * FROM ALERTS"""
     cur.execute(statement)
     output = cur.fetchall()
     items = []
@@ -36,9 +36,9 @@ def get_logs():
     return items
 
 def get_specific_logs(filter):
-    con = sqlite3.connect('LOG_DB.db')
+    con = sqlite3.connect('ALERT_DB.db')
     cur = con.cursor()
-    statement = """SELECT * FROM LOGS WHERE """ + filter
+    statement = """SELECT * FROM ALERTS WHERE """ + filter
     cur.execute(statement)
     output = cur.fetchall()
     items = []
