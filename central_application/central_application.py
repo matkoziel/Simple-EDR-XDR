@@ -1,9 +1,10 @@
 import shutil
 from pathlib import Path
-
+import time
 from beaupy import select_multiple
 import click
 import requests
+import jsonify
 from jproperties import Properties
 import log_parser
 import pcap_analysis
@@ -180,8 +181,8 @@ def run_rules(pcap, evtx, xml, json, txt):
     select = select_multiple(functions_list,minimal_count=1)
     for function_name in select:
         func = getattr(module, function_name)
-        func(pcap=pcap,evtx=evtx,xml=xml,json=json,txt=txt)
-        jsonify(date = dmy, time = hms, rule_name = logger, message = msg)
+        ret = func(pcap=pcap,evtx=evtx,xml=xml,json=json,txt=txt)
+        jsonify(created = time.time(), rule_name = function_name, message = ret[1])
         
 @cli.group('remote_agent')
 def remote_agent():

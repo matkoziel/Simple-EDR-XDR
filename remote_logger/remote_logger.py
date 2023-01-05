@@ -6,16 +6,14 @@ import time
 class insert_log(Resource):
     def post(self):
         json_data = request.get_json()
-        logger = json_data['name']
-        type = json_data['levelname']
+        rule_name = json_data['rule_name']
         msg = json_data['msg']
-        module = json_data['filename'] + '.' + json_data['module']
-        date = int(float(json_data["created"])*1000)
+        date = int(float(json_data['created'])*1000)
         datef = (time.strftime('%d/%m/%Y %H:%M:%S:{}'.format(date%1000), time.gmtime(date/1000.0)))
         dmy = datef.split(" ")[0]
         hms = datef.split(" ")[1]
-        sql_connection.insert_log(type, dmy, hms, logger, module, msg)
-        return jsonify(type = type, date = dmy, time = hms, source = logger, module = module, message = msg)
+        sql_connection.insert_log(dmy, hms, rule_name, msg)
+        return jsonify(date = dmy, time = hms, rule_name = rule_name, message = msg)
 
 class get_logs(Resource):
     def get(self):

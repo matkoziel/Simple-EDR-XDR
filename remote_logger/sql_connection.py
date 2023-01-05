@@ -13,11 +13,11 @@ def init():
     con.commit()
     con.close()
 
-def insert_log(type, date, time, logger, module, message):
+def insert_log(date, time, rule_name, message):
     con = sqlite3.connect('ALERT_DB.db')
     cur = con.cursor()
-    data = (type, date, time, logger,module, message)
-    statement = """INSERT INTO ALERTS(TYPE, DATE, TIME, LOGGER, MODULE, MESSAGE) VALUES(?, ?, ?, ?, ?, ?)"""
+    data = (date, time, rule_name, message)
+    statement = """INSERT INTO ALERTS(DATE, TIME, RULE_NAME, MESSAGE) VALUES(?, ?, ?, ?)"""
     cur.execute(statement, data)
     con.commit()
     con.close()
@@ -30,7 +30,7 @@ def get_logs():
     output = cur.fetchall()
     items = []
     for row in output:
-        items.append({'type':row[0], 'date':row[1], 'time':row[2],'logger':row[3],'module':row[4], 'message':row[5]})
+        items.append({'date':row[0], 'time':row[1],'rule_name':row[2],'message':row[3]})
     con.commit()
     con.close()
     return items
@@ -43,7 +43,7 @@ def get_specific_logs(filter):
     output = cur.fetchall()
     items = []
     for row in output:
-        items.append({'type':row[0], 'date':row[1], 'time':row[2],'logger':row[3],'module':row[4], 'message':row[5]})
+        items.append({'date':row[0], 'time':row[1],'rule_name':row[2],'message':row[3]})
     con.commit()
     con.close()
     return items
