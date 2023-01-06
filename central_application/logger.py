@@ -4,8 +4,7 @@ from datetime import datetime
 from jproperties import Properties
 
 def log_action(function, output, time):
-    #datef = (time.strftime('%d/%m/%Y-%H:%M:%S')) time format
-    filename = "/logs/Simple-EDR-XDR-" + function + "-" + time + ".log"
+    filename = "Simple-EDR-XDR-" + function + "-" + time + ".log"
     with open(filename, "w") as file:
         file.write(output)
     
