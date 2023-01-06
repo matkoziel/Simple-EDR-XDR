@@ -3,6 +3,14 @@ import logging.handlers
 from datetime import datetime
 from jproperties import Properties
 
+def log_action(function, output, time):
+    #datef = (time.strftime('%d/%m/%Y-%H:%M:%S')) time format
+    filename = "/logs/Simple-EDR-XDR-" + function + "-" + time + ".log"
+    with open(filename, "w") as file:
+        file.write(output)
+    
+
+"""
 offline_logger = logging.getLogger('Offline')
 
 config = Properties()
@@ -35,3 +43,6 @@ remote_logger.setLevel(logging.DEBUG)
 
 def get_remote_logger():
     return remote_logger
+"""
+
+
