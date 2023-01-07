@@ -20,11 +20,11 @@ class get_chosen_logs(Resource):
     def get(self):
         json_data = request.get_json()
         response = []
-        for file in json_data:
-            if logs.get_specific_log(file) != -1:
-                response.append({'file':'ok'})
-            else:
-                response.append({'file':'no such file'}) 
+        file =json_data['file']
+        if logs.get_specific_log(file) != -1:
+            response.append({'file':'ok'})
+        else:
+            response.append({'file':'no such file'}) 
         return response
 
 class get_network_config(Resource):
