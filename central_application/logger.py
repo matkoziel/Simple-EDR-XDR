@@ -7,7 +7,7 @@ def log_action(function, output, time):
     filename = "Simple-EDR-XDR-" + function + "-" + time + ".log"
     with open(filename, "w") as file:
         for x in output:
-            file.write(x + '\n')
+            file.write(str(x) + '\n')
 
     
 
