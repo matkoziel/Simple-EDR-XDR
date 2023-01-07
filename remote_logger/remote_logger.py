@@ -8,12 +8,9 @@ class insert_log(Resource):
         json_data = request.get_json()
         rule_name = json_data['rule_name']
         msg = json_data['msg']
-        date = int(float(json_data['created'])*1000)
-        datef = (time.strftime('%d/%m/%Y %H:%M:%S:{}'.format(date%1000), time.gmtime(date/1000.0)))
-        dmy = datef.split(" ")[0]
-        hms = datef.split(" ")[1]
-        sql_connection.insert_log(dmy, hms, rule_name, msg)
-        return jsonify(date = dmy, time = hms, rule_name = rule_name, message = msg)
+        timestamp = json_data['timestamp']
+        sql_connection.insert_log(timestamp, rule_name, msg)
+        return jsonify(timestamp = timestamp, rule_name = rule_name, message = msg)
 
 class get_logs(Resource):
     def get(self):

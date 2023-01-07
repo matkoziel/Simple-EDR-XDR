@@ -210,7 +210,7 @@ def run_all_rules(pcap, evtx, xml, json, txt):
         ret = func(pcap=pcap,evtx=evtx,xml=xml,json=json,txt=txt)
         if(ret[0] == 'remote'):
             uri = f"http://{host}:{port}/insert_log"
-            PARAMS = {'rule_name':function_name,'message':ret[1], 'created':time.time()}
+            PARAMS = {'rule_name':function_name,'message':ret[1], 'timestamp':time.strftime('%d/%m/%Y %H:%M:%S')}
             resposne = requests.request(method='post', url=uri, data=PARAMS)
             res.append(resposne)
             print(f"Reguła {function_name} wywołała alert 'remote': {ret[1]}")
@@ -242,14 +242,14 @@ def run_rules(pcap, evtx, xml, json, txt):
         ret = func(pcap=pcap,evtx=evtx,xml=xml,json=json,txt=txt)
         if(ret[0] == 'remote'):
             uri = f"http://{host}:{port}/insert_log"
-            PARAMS = {'rule_name':function_name,'message':ret[1], 'created':time.time()}
+            PARAMS = {'rule_name':function_name,'message':ret[1], 'created':time.strftime('%d/%m/%Y %H:%M:%S')}
             resposne = requests.request(method='post', url=uri, data=PARAMS)
             res.append(resposne)
-            print(f"Reguła {function_name} wywołała alert 'remote': {ret[1]}")
-            res.append(f"Reguła {function_name} wywołała alert 'remote': {ret[1]}")
+            print(f"Reguła {function_name} wywołała alert typu 'remote': {ret[1]}")
+            res.append(f"Reguła {function_name} wywołała alert typu 'remote': {ret[1]}")
         elif (ret[0] == 'local'):
-            print(f"Reguła {function_name} wywołała alert 'local': {ret[1]}")
-            res.append(f"Reguła {function_name} wywołała alert 'local': {ret[1]}")
+            print(f"Reguła {function_name} wywołała alert typu 'local': {ret[1]}")
+            res.append(f"Reguła {function_name} wywołała alert typu 'local': {ret[1]}")
     log_action("run_rules", res, time)
         
         
