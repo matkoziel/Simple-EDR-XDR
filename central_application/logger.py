@@ -6,7 +6,9 @@ from jproperties import Properties
 def log_action(function, output, time):
     filename = "Simple-EDR-XDR-" + function + "-" + time + ".log"
     with open(filename, "w") as file:
-        file.write(output)
+        for x in output:
+            file.write(x + '\n')
+
     
 
 """

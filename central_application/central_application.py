@@ -61,7 +61,7 @@ def use_re(regex,path):
         except Exception as e:
             print(e)
             res.append(e)
-    log_action("use_re", str(res), time)
+    log_action("use_re", res, time)
 
 # TODO : logi
 @parse_log.command('use_grep')
@@ -102,7 +102,7 @@ def show_pcap(path, filter):
         except Exception as e:
             print(e)
             res.append(e)
-    log_action("show_pcap", str(res), time)
+    log_action("show_pcap", res, time)
 
 @cli.group('remote_logger')
 def remote_logger():
@@ -124,7 +124,7 @@ def get_all_logs():
     except Exception as e:
         print(e)
         res.append(e)
-    log_action("get_all_logs", str(res), time)
+    log_action("get_all_logs", res, time)
 
 @remote_logger.command('get_logs')
 @click.option('-r','--request',type=click.STRING)
@@ -144,7 +144,7 @@ def get_logs(request):
     except Exception as e:
         print(e)
         res.append(e)
-    log_action("get_logs", str(res), time)
+    log_action("get_logs", res, time)
 
 
 # TODO : logi
@@ -187,7 +187,7 @@ def list_rules():
     for function_name in functions_list:
         print(function_name)
         res.append(function_name)
-    log_action("list_rules", str(res), time)
+    log_action("list_rules", res, time)
 
 
 # TODO : logi
@@ -218,7 +218,7 @@ def run_all_rules(pcap, evtx, xml, json, txt):
         elif (ret[0] == 'local'):
             print(f"Reguła {function_name} wywołała alert 'local': {ret[1]}")
             res.append(f"Reguła {function_name} wywołała alert 'local': {ret[1]}")
-    log_action("run_rules", str(res), time)
+    log_action("run_rules", res, time)
         
 
 @detection_rules.command("run_rules")
@@ -250,7 +250,7 @@ def run_rules(pcap, evtx, xml, json, txt):
         elif (ret[0] == 'local'):
             print(f"Reguła {function_name} wywołała alert 'local': {ret[1]}")
             res.append(f"Reguła {function_name} wywołała alert 'local': {ret[1]}")
-    log_action("run_rules", str(res), time)
+    log_action("run_rules", res, time)
         
         
 @cli.group('remote_agent')
@@ -268,7 +268,7 @@ def get_net_config(agent,port):
     data = resposne.json()
     print(data)
     res.append(data)
-    log_action("get_net_config", str(res), time)
+    log_action("get_net_config", res, time)
 
 @remote_agent.command("capture_traffic")
 @click.option('-a','--agent',type=click.STRING, required=True)
@@ -286,7 +286,7 @@ def capture_traffic(agent,port,interface,filter,write,time):
     data = resposne.json()
     print(data)
     res.append(data)
-    log_action("capture_traffic", str(res), time)
+    log_action("capture_traffic", res, time)
 
 @remote_agent.command("list_logs")
 @click.option('-a','--agent',type=click.STRING, required=True)
@@ -301,7 +301,7 @@ def list_logs(agent,port):
     res.append(f"Log files on agent {agent}:{port}:")
     print(data)
     res.append(data)
-    log_action("list_logs", str(res), time)
+    log_action("list_logs", res, time)
 
 @remote_agent.command("get_logs")
 @click.option('-a','--agent',type=click.STRING, required=True)
@@ -319,7 +319,7 @@ def get_logs(agent,port,file):
     res.append(f"Log files on agent {agent}:{port}:")
     print(data)
     res.append(data)
-    log_action("get_logs", str(res), time)
+    log_action("get_logs", res, time)
 
 @remote_agent.command("get_pcaps_list")
 @click.option('-a','--agent',type=click.STRING, required=True)
@@ -334,7 +334,7 @@ def get_pcaps_list(agent,port):
     res.append(f"Log files on agent {agent}:{port}:")
     print(data)
     res.append(data)
-    log_action("get_pcaps_list", str(res), time)
+    log_action("get_pcaps_list", res, time)
 
 @remote_agent.command("get_chosen_pcaps")
 @click.option('-a','--agent',type=click.STRING, required=True)
@@ -352,7 +352,7 @@ def get_chosen_pcaps(agent,port,file):
     res.append(f"Log files on agent {agent}:{port}:")
     print(data)
     res.append(data)
-    log_action("get_chosen_pcaps", str(res), time)
+    log_action("get_chosen_pcaps", res, time)
     
 @remote_agent.command("cmd")
 @click.option('-a','--agent',type=click.STRING, required=True)
@@ -370,7 +370,7 @@ def cmd(agent,port,command):
         print (f'Result of {command} is: \n{result}')
         res.append(f'Result of {command} is: \n{result}')
     
-    log_action("cmd", str(res), time)
+    log_action("cmd", res, time)
 
 
 
@@ -406,7 +406,7 @@ def add_new_ruleset(file):
         res.append("bad file path")
     print("New ruleset added")
     res.append("New ruleset added")
-    log_action("add_new_ruleset", str(res), time)
+    log_action("add_new_ruleset", res, time)
 
 
 @SIGMA.command("run_sigma")
@@ -424,7 +424,7 @@ def run_sigma(evtx,rules):
     os.system(cmd)
     print("check central_application/SIGMA_detected_events.json")
     res.append("check central_application/SIGMA_detected_events.json")
-    log_action("run_sigma", str(res), time)
+    log_action("run_sigma", res, time)
 
 
 
