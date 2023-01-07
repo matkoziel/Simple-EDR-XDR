@@ -57,5 +57,22 @@ def funkcja_testowa(**kwargs):
         description = None
     return action_alert, description
 
-def funkcja_2(**kwargs):
-    print("Test")
+def funkcja_testowa_2(**kwargs):
+    print("Test 2")
+    if True:
+        action_alert = "local" # remote local
+        description = "Local test"
+    else:
+        action_alert = None
+        description = None
+    return action_alert, description
+
+def funkcja_testowa_3(**kwargs):
+    print("Test 3")
+    if True:
+        action_alert = "local" # remote local
+        description = "Local test"
+    else:
+        action_alert = None
+        description = None
+    return action_alert, description

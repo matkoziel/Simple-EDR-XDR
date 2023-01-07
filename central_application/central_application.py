@@ -22,7 +22,7 @@ def get_config():
 def prepare_log(data):
     result=[]
     for log in data:
-        one_log = "{date} {time} {rule} {message}".format(date=log["date"], time=log["time"], rule_name=log["rule_name"],message=log["message"])
+        one_log = "{time} {rule} {message}".format(time=log["timestamp"], rule=log["rule_name"],message=log["message"])
         result.append(one_log)
     return result
 
@@ -39,7 +39,7 @@ def parse_log():
 @click.option('-r','--regex', type=click.STRING)
 @click.option('-p','--path',type=click.File('r'),required=True)
 def use_re(regex,path):
-    time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     if(regex):
         try:
@@ -61,26 +61,27 @@ def use_re(regex,path):
         except Exception as e:
             print(e)
             res.append(e)
-    log_action("use_re", res, time)
+    log_action("use_re", res, act_time)
 
-# TODO : logi
 @parse_log.command('use_grep')
 @click.option('-r','--regex',default='', type=click.STRING, required=True)
 @click.option('-p','--path',type=click.File('r'),required=True)
 def use_grep(regex,path):
-    time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     try:
         full_path = os.path.abspath(path.name)
-        log_parser.grep(full_path,regex)
+        res = log_parser.grep(full_path,regex)
     except Exception as e:
         print(e)
+    print(res)
+    log_action("use_grep", res, act_time)
 
 @cli.command('show_pcap')
 @click.option('-p','--path',type=click.File('r'),required=True)
 @click.option('-f','--filter',default='', type=click.STRING)
 def show_pcap(path, filter):
-    time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     if filter:
         try:
@@ -102,7 +103,7 @@ def show_pcap(path, filter):
         except Exception as e:
             print(e)
             res.append(e)
-    log_action("show_pcap", res, time)
+    log_action("show_pcap", res, act_time)
 
 @cli.group('remote_logger')
 def remote_logger():
@@ -110,7 +111,7 @@ def remote_logger():
 
 @remote_logger.command('get_all_logs')
 def get_all_logs():
-    time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     try:
         host=config.get('REMOTE_LOGGER_HOST').data
@@ -124,19 +125,19 @@ def get_all_logs():
     except Exception as e:
         print(e)
         res.append(e)
-    log_action("get_all_logs", res, time)
+    log_action("get_all_logs", res, act_time)
 
 @remote_logger.command('get_logs')
 @click.option('-r','--request',type=click.STRING)
 def get_logs(request):
-    time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     try:
         host=config.get('REMOTE_LOGGER_HOST').data
         port=config.get('REMOTE_LOGGER_PORT').data
         uri="http://{host}:{port}/get_specific_logs".format(host=host,port=port)
         PARAMS = {'filter':request}
-        resposne = requests.request(method='get', url=uri, data=PARAMS)
+        resposne = requests.request(method='get', url=uri, json=PARAMS)
         data = resposne.json()
         for i in prepare_log(data):
             print(i)
@@ -144,15 +145,15 @@ def get_logs(request):
     except Exception as e:
         print(e)
         res.append(e)
-    log_action("get_logs", res, time)
+    log_action("get_logs", res, act_time)
 
 
-# TODO : logi
+
 @remote_logger.command('export_logs')
 @click.option('-r','--request',type=click.STRING)
 @click.option('-p','--path',type=click.File('w+'),required=True)
 def get_logs(request, path):
-    time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     try:
         host=config.get('REMOTE_LOGGER_HOST').data
@@ -160,18 +161,20 @@ def get_logs(request, path):
         if request:
             uri="http://{host}:{port}/get_specific_logs".format(host=host,port=port)
             PARAMS = {'filter':request}
-            resposne = requests.request(method='get', url=uri, data=PARAMS)
+            resposne = requests.request(method='get', url=uri, json=PARAMS)
             data = resposne.json()
         else:
             uri="http://{host}:{port}/get_logs".format(host=host,port=port)
             PARAMS = {'filter':request}
-            resposne = requests.request(method='get', url=uri, data=PARAMS)
+            resposne = requests.request(method='get', url=uri, json=PARAMS)
             data = resposne.json()
         for i in prepare_log(data):
             path.write(i + '\n')
         path.close()
+        res = [f"Data successfully written to file {path}"]
     except Exception as e:
         print(e)
+    log_action("export_logs", res, act_time)
 
 @cli.group('detection_rules')
 def detection_rules():
@@ -179,18 +182,17 @@ def detection_rules():
 
 @detection_rules.command("list_rules")
 def list_rules():
-    time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     module = __import__("detection_rules")
     import detection_rules
     functions_list = getmembers(detection_rules, isfunction)
     for function_name in functions_list:
-        print(function_name)
-        res.append(function_name)
-    log_action("list_rules", res, time)
+        print(function_name[0])
+        res.append(function_name[0])
+    log_action("list_rules", res, act_time)
 
 
-# TODO : logi
 @detection_rules.command("run_all_rules")
 @click.option('-p','--pcap',type=click.STRING,default="")
 @click.option('-e','--evtx',type=click.STRING,default="")
@@ -198,27 +200,28 @@ def list_rules():
 @click.option('-j','--json',type=click.STRING,default="")
 @click.option('-t','--txt',type=click.STRING,default="")
 def run_all_rules(pcap, evtx, xml, json, txt):
-    time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     host=config.get('REMOTE_LOGGER_HOST').data
     port=config.get('REMOTE_LOGGER_PORT').data
     module = __import__("detection_rules")
     import detection_rules
-    functions_list = getmembers(detection_rules, isfunction)
+    functions_list_temp = getmembers(detection_rules, isfunction)
+    functions_list = [i[0] for i in functions_list_temp]
     for function_name in functions_list:
         func = getattr(module, function_name)
         ret = func(pcap=pcap,evtx=evtx,xml=xml,json=json,txt=txt)
         if(ret[0] == 'remote'):
             uri = f"http://{host}:{port}/insert_log"
-            PARAMS = {'rule_name':function_name,'message':ret[1], 'timestamp':time.strftime('%d/%m/%Y %H:%M:%S')}
-            resposne = requests.request(method='post', url=uri, data=PARAMS)
+            PARAMS = {'rule_name':function_name,'msg':ret[1], 'timestamp':time.strftime('%d/%m/%Y %H:%M:%S')}
+            resposne = requests.request(method='post', url=uri, json=PARAMS)
             res.append(resposne)
             print(f"Reguła {function_name} wywołała alert 'remote': {ret[1]}")
             res.append(f"Reguła {function_name} wywołała alert 'remote': {ret[1]}")
         elif (ret[0] == 'local'):
             print(f"Reguła {function_name} wywołała alert 'local': {ret[1]}")
             res.append(f"Reguła {function_name} wywołała alert 'local': {ret[1]}")
-    log_action("run_rules", res, time)
+    log_action("run_rules", res, act_time)
         
 
 @detection_rules.command("run_rules")
@@ -228,7 +231,7 @@ def run_all_rules(pcap, evtx, xml, json, txt):
 @click.option('-j','--json',type=click.STRING,default="")
 @click.option('-t','--txt',type=click.STRING,default="")
 def run_rules(pcap, evtx, xml, json, txt):
-    time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     host=config.get('REMOTE_LOGGER_HOST').data
     port=config.get('REMOTE_LOGGER_PORT').data
@@ -242,15 +245,15 @@ def run_rules(pcap, evtx, xml, json, txt):
         ret = func(pcap=pcap,evtx=evtx,xml=xml,json=json,txt=txt)
         if(ret[0] == 'remote'):
             uri = f"http://{host}:{port}/insert_log"
-            PARAMS = {'rule_name':function_name,'message':ret[1], 'created':time.strftime('%d/%m/%Y %H:%M:%S')}
-            resposne = requests.request(method='post', url=uri, data=PARAMS)
+            PARAMS = {'rule_name':function_name,'msg':ret[1], 'timestamp':time.strftime('%d/%m/%Y %H:%M:%S')}
+            resposne = requests.request(method='post', url=uri, json=PARAMS)
             res.append(resposne)
             print(f"Reguła {function_name} wywołała alert typu 'remote': {ret[1]}")
             res.append(f"Reguła {function_name} wywołała alert typu 'remote': {ret[1]}")
         elif (ret[0] == 'local'):
             print(f"Reguła {function_name} wywołała alert typu 'local': {ret[1]}")
             res.append(f"Reguła {function_name} wywołała alert typu 'local': {ret[1]}")
-    log_action("run_rules", res, time)
+    log_action("run_rules", res, act_time)
         
         
 @cli.group('remote_agent')
@@ -261,14 +264,18 @@ def remote_agent():
 @click.option('-a','--agent',type=click.STRING, required=True)
 @click.option('-p','--port',type=click.STRING, required=True)
 def get_net_config(agent,port):
-    time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     uri=f"http://{agent}:{port}/get_network_config"
     resposne = requests.get(url=uri)
     data = resposne.json()
-    print(data)
-    res.append(data)
-    log_action("get_net_config", res, time)
+    for line in data:
+        print("Interface: " + line)
+        res.append("Interface: " + line)
+        for a in data[line]:
+            print("\t" + str(a) + ": " + str(data[line][a]))
+            res.append("\t" + str(a) + ": " + str(data[line][a]))
+    log_action("get_net_config", res, act_time)
 
 @remote_agent.command("capture_traffic")
 @click.option('-a','--agent',type=click.STRING, required=True)
@@ -276,39 +283,40 @@ def get_net_config(agent,port):
 @click.option('-i','--interface',type=click.STRING, required=True)
 @click.option('-f','--filter',type=click.STRING, default="")
 @click.option('-w','--write',type=click.STRING, required=True)
-@click.option('-t','--time',type=click.STRING, required=True)
-def capture_traffic(agent,port,interface,filter,write,time):
-    time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+@click.option('-t','--capture_time',type=click.STRING, required=True)
+def capture_traffic(agent,port,interface,filter,write,capture_time):
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     uri=f"http://{agent}:{port}/sniffing"
-    PARAMS = {'interface':interface,'filter':filter,'file_name':write,'sniff_time':time}
+    PARAMS = {'interface':interface,'filter':filter,'file_name':write,'sniff_time':capture_time}
     resposne = requests.request(method='post', url=uri, json=PARAMS, headers={"Content-Type":"application/json"})
     data = resposne.json()
     print(data)
     res.append(data)
-    log_action("capture_traffic", res, time)
+    log_action("capture_traffic", res, act_time)
 
 @remote_agent.command("list_logs")
 @click.option('-a','--agent',type=click.STRING, required=True)
 @click.option('-p','--port',type=click.STRING, required=True)
 def list_logs(agent,port):
-    time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     uri=f"http://{agent}:{port}/get_log_list"
     resposne = requests.get(url=uri)
     data = resposne.json()
     print(f"Log files on agent {agent}:{port}:")
     res.append(f"Log files on agent {agent}:{port}:")
-    print(data)
-    res.append(data)
-    log_action("list_logs", res, time)
+    for line in data:
+        print(line)
+        res.append(line)
+    log_action("list_logs", res, act_time)
 
 @remote_agent.command("get_logs")
 @click.option('-a','--agent',type=click.STRING, required=True)
 @click.option('-p','--port',type=click.STRING, required=True)
 @click.option('-f','--file',type=click.STRING, required=True)
 def get_logs(agent,port,file):
-    time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     uri=f"http://{agent}:{port}/get_chosen_logs"
     resposne = requests.get(url=uri)
@@ -319,13 +327,13 @@ def get_logs(agent,port,file):
     res.append(f"Log files on agent {agent}:{port}:")
     print(data)
     res.append(data)
-    log_action("get_logs", res, time)
+    log_action("get_logs", res, act_time)
 
 @remote_agent.command("get_pcaps_list")
 @click.option('-a','--agent',type=click.STRING, required=True)
 @click.option('-p','--port',type=click.STRING, required=True)
 def get_pcaps_list(agent,port):
-    time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     uri=f"http://{agent}:{port}/get_pcaps_list"
     resposne = requests.get(url=uri)
@@ -334,14 +342,14 @@ def get_pcaps_list(agent,port):
     res.append(f"Log files on agent {agent}:{port}:")
     print(data)
     res.append(data)
-    log_action("get_pcaps_list", res, time)
+    log_action("get_pcaps_list", res, act_time)
 
 @remote_agent.command("get_chosen_pcaps")
 @click.option('-a','--agent',type=click.STRING, required=True)
 @click.option('-p','--port',type=click.STRING, required=True)
 @click.option('-f','--file',type=click.STRING, required=True)
 def get_chosen_pcaps(agent,port,file):
-    time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     uri=f"http://{agent}:{port}/get_chosen_pcaps"
     resposne = requests.get(url=uri)
@@ -352,14 +360,14 @@ def get_chosen_pcaps(agent,port,file):
     res.append(f"Log files on agent {agent}:{port}:")
     print(data)
     res.append(data)
-    log_action("get_chosen_pcaps", res, time)
+    log_action("get_chosen_pcaps", res, act_time)
     
 @remote_agent.command("cmd")
 @click.option('-a','--agent',type=click.STRING, required=True)
 @click.option('-p','--port',type=click.STRING, required=True)
 @click.option('-c','--command',type=click.STRING)
 def cmd(agent,port,command):
-    time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     uri=f"http://{agent}:{port}/execute_command"
     PARAMS = {'command':command}
@@ -370,7 +378,7 @@ def cmd(agent,port,command):
         print (f'Result of {command} is: \n{result}')
         res.append(f'Result of {command} is: \n{result}')
     
-    log_action("cmd", res, time)
+    log_action("cmd", res, act_time)
 
 
 
@@ -381,7 +389,7 @@ def SIGMA():
 @SIGMA.command("add_new_ruleset")
 @click.option('-f','--file',type=click.STRING,required=True)
 def add_new_ruleset(file):
-    time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     path = Path(file)
     if path.is_file():
@@ -396,40 +404,39 @@ def add_new_ruleset(file):
                 if fp.suffix in [".json",".evtx"]:
                     shutil.copy2(os.path.join(path,fp),"central_application/SIGMA_rules")
                 else:
-                    print(fp, " is not a valid file (use .json,.evtx)")
-                    res.append(fp, " is not a valid file (use .json,.evtx)")
+                    print(fp + " is not a valid file (use .json,.evtx)")
+                    res.append(fp + " is not a valid file (use .json,.evtx)")
             else:
                 print(fp, " is not a file")
-                res.append(fp, " is not a file")
+                res.append(fp + " is not a file")
     else:
         print("bad file path")
         res.append("bad file path")
     print("New ruleset added")
     res.append("New ruleset added")
-    log_action("add_new_ruleset", res, time)
+    log_action("add_new_ruleset", res, act_time)
 
 
 @SIGMA.command("run_sigma")
 @click.option('-e','--evtx',type=click.STRING,required=True)
 @click.option('-r','--rules',type=click.STRING,default='',required=False)
 def run_sigma(evtx,rules):
-    time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
-    print("will run rules from: ", rules, " on logs in: ", evtx)
-    res.append("will run rules from: ", rules, " on logs in: ", evtx)
+    print(f"Will run rules from: {rules} on logs in: {evtx}")
+    res.append(f"Will run rules from: {rules} on logs in: {evtx}")
     #run zircolite
     cmd = "python central_application/Zircolite.py --evtx {}".format(evtx)
     if rules != '':
         cmd += (" --rules {}".format(rules))
     os.system(cmd)
-    print("check central_application/SIGMA_detected_events.json")
-    res.append("check central_application/SIGMA_detected_events.json")
-    log_action("run_sigma", res, time)
+    print("Check central_application/SIGMA_detected_events.json")
+    res.append("Check central_application/SIGMA_detected_events.json")
+    log_action("run_sigma", res, act_time)
 
 
 
 if __name__ == '__main__':
     with open('resources/app.properties','rb') as app_properties:
         config.load(app_properties,"utf-8")
-    #offline_logger=logger.get_offline_logger()
     cli()

@@ -6,7 +6,7 @@ def init():
     print('Initializing connection...')
     listOfTables = cur.execute("""SELECT name FROM sqlite_master WHERE type='table' AND name='ALERTS'; """).fetchall()
     if listOfTables == []:
-            cur.execute("""CREATE TABLE ALERTS(TIMESTAMP VARCHAR(23), RULE_NAME VARCHAR(20), MESSAGE VARCHAR(250));""")
+            cur.execute("""CREATE TABLE ALERTS(TIMESTAMP DATETIME, RULE_NAME VARCHAR(20), MESSAGE VARCHAR(250));""")
             print('Connection with database initialized')
     else:  
             print('Connection with database initialized')
@@ -39,6 +39,7 @@ def get_specific_logs(filter):
     con = sqlite3.connect('ALERT_DB.db')
     cur = con.cursor()
     statement = """SELECT * FROM ALERTS WHERE """ + filter
+    print(statement)
     cur.execute(statement)
     output = cur.fetchall()
     items = []
