@@ -295,7 +295,7 @@ def capture_traffic(agent,port,interface,filter,write,capture_time):
     res.append(data)
     log_action("capture_traffic", res, act_time)
 
-@remote_agent.command("list_logs")
+@remote_agent.command("get_logs_list")
 @click.option('-a','--agent',type=click.STRING, required=True)
 @click.option('-p','--port',type=click.STRING, required=True)
 def list_logs(agent,port):
@@ -311,7 +311,7 @@ def list_logs(agent,port):
         res.append(line)
     log_action("list_logs", res, act_time)
 
-@remote_agent.command("get_logs")
+@remote_agent.command("get_chosen_log")
 @click.option('-a','--agent',type=click.STRING, required=True)
 @click.option('-p','--port',type=click.STRING, required=True)
 @click.option('-f','--file',type=click.STRING, required=True)
@@ -322,11 +322,11 @@ def get_logs(agent,port,file):
     resposne = requests.get(url=uri)
     PARAMS = {'file':file}
     resposne = requests.request(method='get', url=uri, json=PARAMS, headers={"Content-Type":"application/json"})
-    data = resposne.json()
     print(f"Log files on agent {agent}:{port}:")
     res.append(f"Log files on agent {agent}:{port}:")
-    print(data)
-    res.append(data)
+    body = resposne.content.decode('utf-8')
+    print(body)
+    res.append(body)
     log_action("get_logs", res, act_time)
 
 @remote_agent.command("get_pcaps_list")
@@ -344,7 +344,7 @@ def get_pcaps_list(agent,port):
     res.append(data)
     log_action("get_pcaps_list", res, act_time)
 
-@remote_agent.command("get_chosen_pcaps")
+@remote_agent.command("get_chosen_pcap")
 @click.option('-a','--agent',type=click.STRING, required=True)
 @click.option('-p','--port',type=click.STRING, required=True)
 @click.option('-f','--file',type=click.STRING, required=True)

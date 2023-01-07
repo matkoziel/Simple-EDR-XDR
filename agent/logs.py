@@ -9,5 +9,6 @@ def get_logs():
 
 def get_specific_log(log_name):
     if os.path.isfile(logs_archive+log_name):
+        print(logs_archive+log_name)
         return(logs_archive+log_name)
     return -1

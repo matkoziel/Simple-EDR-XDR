@@ -22,9 +22,9 @@ class get_chosen_logs(Resource):
         response = []
         file =json_data['file']
         if logs.get_specific_log(file) != -1:
-            response.append({'file':'ok'})
+            return send_file(logs.get_specific_log(file))
         else:
-            response.append({'file':'no such file'}) 
+            response.append({file:'no such file'}) 
         return response
 
 class get_network_config(Resource):
@@ -39,11 +39,11 @@ class get_chosen_pcaps(Resource):
     def get(self):
         json_data = request.get_json()
         response = []
-        for file in json_data:
-            if network.get_specific_pcap(file) != -1:
-                response.append({file:'OK'})
-            else:
-                response.append({file:'No such file'})
+        file = json_data['file']
+        if network.get_specific_pcap(file) != -1:
+            return send_file(network.get_specific_pcap(file))
+        else:
+            response.append({file:'No such file'})
         return response
                 
 
