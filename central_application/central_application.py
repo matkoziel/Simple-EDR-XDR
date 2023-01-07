@@ -117,8 +117,8 @@ def get_all_logs():
         host=config.get('REMOTE_LOGGER_HOST').data
         port=config.get('REMOTE_LOGGER_PORT').data
         uri="http://{host}:{port}/get_logs".format(host=host,port=port)
-        resposne = requests.get(url=uri)
-        data = resposne.json()
+        response = requests.get(url=uri)
+        data = response.json()
         for i in prepare_log(data):
             print(i)
             res.append(i)
@@ -137,8 +137,8 @@ def get_logs(request):
         port=config.get('REMOTE_LOGGER_PORT').data
         uri="http://{host}:{port}/get_specific_logs".format(host=host,port=port)
         PARAMS = {'filter':request}
-        resposne = requests.request(method='get', url=uri, json=PARAMS)
-        data = resposne.json()
+        response = requests.request(method='get', url=uri, json=PARAMS)
+        data = response.json()
         for i in prepare_log(data):
             print(i)
             res.append(i)
@@ -161,13 +161,13 @@ def get_logs(request, path):
         if request:
             uri="http://{host}:{port}/get_specific_logs".format(host=host,port=port)
             PARAMS = {'filter':request}
-            resposne = requests.request(method='get', url=uri, json=PARAMS)
-            data = resposne.json()
+            response = requests.request(method='get', url=uri, json=PARAMS)
+            data = response.json()
         else:
             uri="http://{host}:{port}/get_logs".format(host=host,port=port)
             PARAMS = {'filter':request}
-            resposne = requests.request(method='get', url=uri, json=PARAMS)
-            data = resposne.json()
+            response = requests.request(method='get', url=uri, json=PARAMS)
+            data = response.json()
         for i in prepare_log(data):
             path.write(i + '\n')
         path.close()
@@ -214,8 +214,8 @@ def run_all_rules(pcap, evtx, xml, json, txt):
         if(ret[0] == 'remote'):
             uri = f"http://{host}:{port}/insert_log"
             PARAMS = {'rule_name':function_name,'msg':ret[1], 'timestamp':time.strftime('%d/%m/%Y %H:%M:%S')}
-            resposne = requests.request(method='post', url=uri, json=PARAMS)
-            res.append(resposne)
+            response = requests.request(method='post', url=uri, json=PARAMS)
+            res.append(response)
             print(f"Reguła {function_name} wywołała alert 'remote': {ret[1]}")
             res.append(f"Reguła {function_name} wywołała alert 'remote': {ret[1]}")
         elif (ret[0] == 'local'):
@@ -246,8 +246,8 @@ def run_rules(pcap, evtx, xml, json, txt):
         if(ret[0] == 'remote'):
             uri = f"http://{host}:{port}/insert_log"
             PARAMS = {'rule_name':function_name,'msg':ret[1], 'timestamp':time.strftime('%d/%m/%Y %H:%M:%S')}
-            resposne = requests.request(method='post', url=uri, json=PARAMS)
-            res.append(resposne)
+            response = requests.request(method='post', url=uri, json=PARAMS)
+            res.append(response)
             print(f"Reguła {function_name} wywołała alert typu 'remote': {ret[1]}")
             res.append(f"Reguła {function_name} wywołała alert typu 'remote': {ret[1]}")
         elif (ret[0] == 'local'):
@@ -267,8 +267,8 @@ def get_net_config(agent,port):
     act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     uri=f"http://{agent}:{port}/get_network_config"
-    resposne = requests.get(url=uri)
-    data = resposne.json()
+    response = requests.get(url=uri)
+    data = response.json()
     for line in data:
         print("Interface: " + line)
         res.append("Interface: " + line)
@@ -289,8 +289,8 @@ def capture_traffic(agent,port,interface,filter,write,capture_time):
     res = []
     uri=f"http://{agent}:{port}/sniffing"
     PARAMS = {'interface':interface,'filter':filter,'file_name':write,'sniff_time':capture_time}
-    resposne = requests.request(method='post', url=uri, json=PARAMS, headers={"Content-Type":"application/json"})
-    data = resposne.json()
+    response = requests.request(method='post', url=uri, json=PARAMS, headers={"Content-Type":"application/json"})
+    data = response.json()
     print(data)
     res.append(data)
     log_action("capture_traffic", res, act_time)
@@ -302,8 +302,8 @@ def list_logs(agent,port):
     act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     uri=f"http://{agent}:{port}/get_log_list"
-    resposne = requests.get(url=uri)
-    data = resposne.json()
+    response = requests.get(url=uri)
+    data = response.json()
     print(f"Log files on agent {agent}:{port}:")
     res.append(f"Log files on agent {agent}:{port}:")
     for line in data:
@@ -319,12 +319,13 @@ def get_logs(agent,port,file):
     act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     uri=f"http://{agent}:{port}/get_chosen_logs"
-    resposne = requests.get(url=uri)
     PARAMS = {'file':file}
-    resposne = requests.request(method='get', url=uri, json=PARAMS, headers={"Content-Type":"application/json"})
-    print(f"Log files on agent {agent}:{port}:")
-    res.append(f"Log files on agent {agent}:{port}:")
-    body = resposne.content.decode('utf-8')
+    response = requests.request(method='get', url=uri, json=PARAMS, headers={"Content-Type":"application/json"})
+    if(~re.match(".*no such file .*", response)):
+        with open(file, 'wb') as f:
+            f.write(response.content.decode('utf-8'))
+    res.append(f"Content of {file} from {agent}:")
+    body = response.content.decode('utf-8')
     print(body)
     res.append(body)
     log_action("get_logs", res, act_time)
@@ -336,8 +337,8 @@ def get_pcaps_list(agent,port):
     act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     uri=f"http://{agent}:{port}/get_pcaps_list"
-    resposne = requests.get(url=uri)
-    data = resposne.json()
+    response = requests.get(url=uri)
+    data = response.json()
     print(f"Log files on agent {agent}:{port}:")
     res.append(f"Log files on agent {agent}:{port}:")
     print(data)
@@ -352,15 +353,16 @@ def get_chosen_pcaps(agent,port,file):
     act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
     uri=f"http://{agent}:{port}/get_chosen_pcaps"
-    resposne = requests.get(url=uri)
     PARAMS = {'file':file}
-    resposne = requests.request(method='get', url=uri, json=PARAMS, headers={"Content-Type":"application/json"})
-    data = resposne.json()
-    print(f"Log files on agent {agent}:{port}:")
-    res.append(f"Log files on agent {agent}:{port}:")
-    print(data)
-    res.append(data)
-    log_action("get_chosen_pcaps", res, act_time)
+    response = requests.request(method='get', url=uri, json=PARAMS, headers={"Content-Type":"application/json"})
+    if(~re.match(".*no such file .*", response)):
+        with open(file, 'wb') as f:
+            f.write(response.content.decode('utf-8'))
+    res.append(f"Content of {file} from {agent}:")
+    body = response.content.decode('utf-8')
+    print(body)
+    res.append(body)
+    log_action("get_logs", res, act_time)
     
 @remote_agent.command("cmd")
 @click.option('-a','--agent',type=click.STRING, required=True)
@@ -371,8 +373,8 @@ def cmd(agent,port,command):
     res = []
     uri=f"http://{agent}:{port}/execute_command"
     PARAMS = {'command':command}
-    resposne = requests.request(method='post', url=uri, json=PARAMS)
-    data = resposne.json()
+    response = requests.request(method='post', url=uri, json=PARAMS)
+    data = response.json()
     if (data is not None) or (data != ''):
         result = data['output'] 
         print (f'Result of {command} is: \n{result}')
