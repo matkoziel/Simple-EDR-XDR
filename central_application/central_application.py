@@ -321,9 +321,10 @@ def get_logs(agent,port,file):
     uri=f"http://{agent}:{port}/get_chosen_logs"
     PARAMS = {'file':file}
     response = requests.request(method='get', url=uri, json=PARAMS, headers={"Content-Type":"application/json"})
-    if(~re.match(".*no such file .*", response)):
+    print(response.content.decode('utf-8'))
+    if not ("no such file" in str(response)):
         with open(file, 'wb') as f:
-            f.write(response.content.decode('utf-8'))
+            f.write(response.content)
     res.append(f"Content of {file} from {agent}:")
     body = response.content.decode('utf-8')
     print(body)
@@ -355,14 +356,14 @@ def get_chosen_pcaps(agent,port,file):
     uri=f"http://{agent}:{port}/get_chosen_pcaps"
     PARAMS = {'file':file}
     response = requests.request(method='get', url=uri, json=PARAMS, headers={"Content-Type":"application/json"})
-    if(~re.match(".*no such file .*", response)):
+    if not ("no such file" in str(response)):
         with open(file, 'wb') as f:
-            f.write(response.content.decode('utf-8'))
-    res.append(f"Content of {file} from {agent}:")
-    body = response.content.decode('utf-8')
-    print(body)
-    res.append(body)
-    log_action("get_logs", res, act_time)
+            f.write(response.content)
+    #res.append(f"Content of {file} from {agent}:")
+    #body = response.content
+    #print(body)
+    #res.append(body)
+    #log_action("get_logs", res, act_time)
     
 @remote_agent.command("cmd")
 @click.option('-a','--agent',type=click.STRING, required=True)
