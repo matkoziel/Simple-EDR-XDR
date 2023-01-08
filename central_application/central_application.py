@@ -134,7 +134,7 @@ def use_re(regex,path):
     log_action("evtx", res, act_time)
 
 @cli.command('show_pcap')
-@click.option('-p','--path',type=click.File('r'),required=True)
+@click.option('-p','--path',type=click.STRING,required=True)
 @click.option('-f','--filter',default='', type=click.STRING)
 def show_pcap(path, filter):
     act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
@@ -144,7 +144,7 @@ def show_pcap(path, filter):
         pcaps = [y for x in os.walk(path) for y in glob(os.path.join(x[0], '*.pcap'))]
         if len(pcaps)!=0:
             for a in pcaps:
-                files.append(a)
+                files.append(os.path.abspath(a))
     else:
         files.append(path)
     
@@ -153,8 +153,7 @@ def show_pcap(path, filter):
         res.append("Parsing file: " + file + "")
         if filter:
             try:
-                full_path = os.path.abspath(path.name)
-                results = pcap_analysis.traffic_from_file_pyshark(full_path,filter)
+                results = pcap_analysis.traffic_from_file_pyshark(file,filter)
                 for r in results:
                     print(r)
                     res.append(r)
@@ -163,8 +162,7 @@ def show_pcap(path, filter):
                 res.append(e)
         else:
             try:
-                full_path = os.path.abspath(path.name)
-                results = pcap_analysis.traffic_from_file_pyshark(full_path,"")
+                results = pcap_analysis.traffic_from_file_pyshark(file,"")
                 for r in results:
                     print(r)
                     res.append(r)
