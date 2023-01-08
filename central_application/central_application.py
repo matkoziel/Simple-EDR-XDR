@@ -216,7 +216,6 @@ def run_all_rules(pcap, evtx, xml, json, txt):
             uri = f"http://{host}:{port}/insert_log"
             PARAMS = {'rule_name':function_name,'msg':ret[1], 'timestamp':time.strftime('%d/%m/%Y %H:%M:%S')}
             response = requests.request(method='post', url=uri, json=PARAMS)
-            res.append(response)
             print(f"Reguła {function_name} wywołała alert 'remote': {ret[1]}")
             res.append(f"Reguła {function_name} wywołała alert 'remote': {ret[1]}")
         elif (ret[0] == 'local'):
@@ -248,7 +247,6 @@ def run_rules(pcap, evtx, xml, json, txt):
             uri = f"http://{host}:{port}/insert_log"
             PARAMS = {'rule_name':function_name,'msg':ret[1], 'timestamp':time.strftime('%d/%m/%Y %H:%M:%S')}
             response = requests.request(method='post', url=uri, json=PARAMS)
-            res.append(response)
             print(f"Reguła {function_name} wywołała alert typu 'remote': {ret[1]}")
             res.append(f"Reguła {function_name} wywołała alert typu 'remote': {ret[1]}")
         elif (ret[0] == 'local'):
