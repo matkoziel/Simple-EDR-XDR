@@ -308,9 +308,10 @@ def capture_traffic(agent,port,interface,filter,write,capture_time):
     uri=f"http://{agent}:{port}/sniffing"
     PARAMS = {'interface':interface,'filter':filter,'file_name':write,'sniff_time':capture_time}
     response = requests.request(method='post', url=uri, json=PARAMS, headers={"Content-Type":"application/json"})
-    data = response.json()
-    print(data)
-    res.append(data)
+    with open(write, 'wb') as f:
+        f.write(response.content)
+        res.append(f"File {write} saved on local machine")
+        print(f"File {write} saved on local machine")
     log_action("capture_traffic", res, act_time)
 
 @remote_agent.command("get_logs_list")
@@ -339,7 +340,7 @@ def get_logs(agent,port,file):
     uri=f"http://{agent}:{port}/get_chosen_log"
     PARAMS = {'file':file}
     response = requests.request(method='get', url=uri, json=PARAMS, headers={"Content-Type":"application/json"})
-    if not ("no such file" in str(response)):
+    if not ("no such file" in str(response.content)):
         with open(file, 'wb') as f:
             f.write(response.content)
             res.append(f"File {file} saved on local machine")
@@ -375,7 +376,7 @@ def get_chosen_pcaps(agent,port,file):
     uri=f"http://{agent}:{port}/get_chosen_pcap"
     PARAMS = {'file':file}
     response = requests.request(method='get', url=uri, json=PARAMS, headers={"Content-Type":"application/json"})
-    if not ("no such file" in str(response)):
+    if not ("no such file" in str(response.content)):
         with open(file, 'wb') as f:
             f.write(response.content)
             res.append(f"File {file} saved on local machine")

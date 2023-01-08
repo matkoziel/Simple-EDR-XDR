@@ -43,7 +43,7 @@ class get_chosen_pcaps(Resource):
         if network.get_specific_pcap(file) != -1:
             return send_file(network.get_specific_pcap(file))
         else:
-            response.append({file:'No such file'})
+            response.append({file:'no such file'})
         return response
                 
 
@@ -55,7 +55,7 @@ class sniffing(Resource):
         file_name = json_data['file_name']
         sniff_time = int(json_data['sniff_time'])
         network.sniff(interface, filter, file_name, sniff_time)
-        return jsonify(interface = interface, filter = filter, file_name = file_name, sniff_time = sniff_time)
+        return send_file(network.get_specific_pcap(file_name))
 
 
 if __name__ == '__main__':
