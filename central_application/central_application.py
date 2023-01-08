@@ -71,10 +71,11 @@ def use_grep(regex,path):
     res = []
     try:
         full_path = os.path.abspath(path.name)
-        res = log_parser.grep(full_path,regex)
+        results = log_parser.grep(full_path,regex)
     except Exception as e:
         print(e)
-    print(res)
+    print(results)
+    res.append(results)
     log_action("use_grep", res, act_time)
 
 @cli.command('show_pcap')
