@@ -13,6 +13,7 @@ import os
 from logger import log_action
 from inspect import getmembers, isfunction
 from detection_rules import *
+from glob import glob
 
 config = Properties()
 
@@ -37,27 +38,45 @@ def parse_log():
 
 @parse_log.command('use_re')
 @click.option('-r','--regex', type=click.STRING)
-@click.option('-p','--path',type=click.File('r'),required=True)
+@click.option('-p','--path',type=click.STRING,required=True)
 def use_re(regex,path):
     act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
+    files = []
+    if os.path.isdir(path):
+        txts = [y for x in os.walk(path) for y in glob(os.path.join(x[0], '*.txt'))]
+        if len(txts)!=0:
+            for a in txts:
+                files.append(a)
+        jsons = [y for x in os.walk(path) for y in glob(os.path.join(x[0], '*.json'))]
+        if len(jsons)!=0:
+            for b in jsons:
+                files.append(b)
+        xmls = [y for x in os.walk(path) for y in glob(os.path.join(x[0], '*.xml'))]
+        if len(xmls)!=0:
+            for c in xmls:
+                files.append(c)
+    else:
+        files.append(path)
     if(regex):
         try:
-            full_path = os.path.abspath(path.name)
-            results = log_parser.parse_with_re(full_path,regex)
-            for result in results:
-                print(result,end='')
-                res.append(result)
+            for file in files:
+                full_path = os.path.abspath(file)
+                results = log_parser.parse_with_re(full_path,regex)
+                for result in results:
+                    print(result,end='')
+                    res.append(result)
         except Exception as e:
             print(e)
             res.append(e)
     else:
         try:
-            full_path = os.path.abspath(path.name)
-            results = log_parser.parse_with_re(full_path,'')
-            for result in results:
-                print(result,end='')
-                res.append(result)
+            for file in files:
+                full_path = os.path.abspath(file)
+                results = log_parser.parse_with_re(full_path,'')
+                for result in results:
+                    print(result,end='')
+                    res.append(result)
         except Exception as e:
             print(e)
             res.append(e)
@@ -77,6 +96,36 @@ def use_grep(regex,path):
     print(results)
     res.append(results)
     log_action("use_grep", res, act_time)
+
+@parse_log.command('evtx')
+@click.option('-r','--regex', type=click.STRING, required=True)
+@click.option('-p','--path',type=click.STRING,required=True)
+def use_re(regex,path):
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    res = []
+    files = []
+    if os.path.isdir(path):
+        evtxs = [y for x in os.walk(path) for y in glob(os.path.join(x[0], '*.evtx'))]
+        if len(evtxs)!=0:
+            for a in evtxs:
+                files.append(a)
+    else:
+        files.append(path)
+
+    for file in files:   
+        result = ""
+        with evtx.Evtx(file) as event_log:
+            result += e_views.XML_HEADER + "\n"
+            result += "<Events>\n"
+            for record in event_log.records():
+                    result += record.xml() + "\n"
+            result += "</Events>\n"
+        for line in result.splitlines():
+            if re.search(regex,line,re.IGNORECASE):
+                print(line)
+                res.append(line)
+
+    log_action("evtx", res, act_time)
 
 @cli.command('show_pcap')
 @click.option('-p','--path',type=click.File('r'),required=True)
