@@ -260,6 +260,24 @@ def run_rules(pcap, evtx, xml, json, txt):
 def remote_agent():
     pass
 
+@remote_agent.command("cmd")
+@click.option('-a','--agent',type=click.STRING, required=True)
+@click.option('-p','--port',type=click.STRING, required=True)
+@click.option('-c','--command',type=click.STRING)
+def cmd(agent,port,command):
+    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
+    res = []
+    uri=f"http://{agent}:{port}/execute_command"
+    PARAMS = {'command':command}
+    response = requests.request(method='post', url=uri, json=PARAMS)
+    data = response.json()
+    if (data is not None) or (data != ''):
+        result = data['output'] 
+        print (f'Result of {command} is: \n{result}')
+        res.append(f'Result of {command} is: \n{result}')
+    
+    log_action("cmd", res, act_time)
+
 @remote_agent.command("get_net_config")
 @click.option('-a','--agent',type=click.STRING, required=True)
 @click.option('-p','--port',type=click.STRING, required=True)
@@ -304,8 +322,8 @@ def list_logs(agent,port):
     uri=f"http://{agent}:{port}/get_log_list"
     response = requests.get(url=uri)
     data = response.json()
-    print(f"Log files on agent {agent}:{port}:")
-    res.append(f"Log files on agent {agent}:{port}:")
+    print(f"Log files on agent {agent}:")
+    res.append(f"Log files on agent {agent}:")
     for line in data:
         print(line)
         res.append(line)
@@ -318,17 +336,16 @@ def list_logs(agent,port):
 def get_logs(agent,port,file):
     act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
-    uri=f"http://{agent}:{port}/get_chosen_logs"
+    uri=f"http://{agent}:{port}/get_chosen_log"
     PARAMS = {'file':file}
     response = requests.request(method='get', url=uri, json=PARAMS, headers={"Content-Type":"application/json"})
-    print(response.content.decode('utf-8'))
     if not ("no such file" in str(response)):
         with open(file, 'wb') as f:
             f.write(response.content)
-    res.append(f"Content of {file} from {agent}:")
-    body = response.content.decode('utf-8')
-    print(body)
-    res.append(body)
+            res.append(f"File {file} saved on local machine")
+    else:
+        print(f"File {file} not found on agent {agent}")
+        res.append(f"File {file} not found on agent {agent}")
     log_action("get_logs", res, act_time)
 
 @remote_agent.command("get_pcaps_list")
@@ -340,10 +357,11 @@ def get_pcaps_list(agent,port):
     uri=f"http://{agent}:{port}/get_pcaps_list"
     response = requests.get(url=uri)
     data = response.json()
-    print(f"Log files on agent {agent}:{port}:")
-    res.append(f"Log files on agent {agent}:{port}:")
-    print(data)
-    res.append(data)
+    print(f"PCAP files on agent {agent}:")
+    res.append(f"PCAP files on agent {agent}:")
+    for line in data:
+        print(line)
+        res.append(line)
     log_action("get_pcaps_list", res, act_time)
 
 @remote_agent.command("get_chosen_pcap")
@@ -353,37 +371,18 @@ def get_pcaps_list(agent,port):
 def get_chosen_pcaps(agent,port,file):
     act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
-    uri=f"http://{agent}:{port}/get_chosen_pcaps"
+    uri=f"http://{agent}:{port}/get_chosen_pcap"
     PARAMS = {'file':file}
     response = requests.request(method='get', url=uri, json=PARAMS, headers={"Content-Type":"application/json"})
     if not ("no such file" in str(response)):
         with open(file, 'wb') as f:
             f.write(response.content)
-    #res.append(f"Content of {file} from {agent}:")
-    #body = response.content
-    #print(body)
-    #res.append(body)
-    #log_action("get_logs", res, act_time)
+            res.append(f"File {file} saved on local machine")
+    else:
+        print(f"File {file} not found on agent {agent}")
+        res.append(f"File {file} not found on agent {agent}")
+    log_action("get_logs", res, act_time)
     
-@remote_agent.command("cmd")
-@click.option('-a','--agent',type=click.STRING, required=True)
-@click.option('-p','--port',type=click.STRING, required=True)
-@click.option('-c','--command',type=click.STRING)
-def cmd(agent,port,command):
-    act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
-    res = []
-    uri=f"http://{agent}:{port}/execute_command"
-    PARAMS = {'command':command}
-    response = requests.request(method='post', url=uri, json=PARAMS)
-    data = response.json()
-    if (data is not None) or (data != ''):
-        result = data['output'] 
-        print (f'Result of {command} is: \n{result}')
-        res.append(f'Result of {command} is: \n{result}')
-    
-    log_action("cmd", res, act_time)
-
-
 
 @cli.group("SIGMA")
 def SIGMA():
