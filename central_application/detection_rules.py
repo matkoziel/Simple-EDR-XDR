@@ -57,21 +57,21 @@ def funkcja_testowa(**kwargs):
         description = None
     return action_alert, description
 
-def funkcja_testowa_2(**kwargs):
-    print("Test 2")
+def example_rule_2(**kwargs):
+    print("Test reguły 2")
     if True:
         action_alert = "local" # remote local
-        description = "Local test"
+        description = "Test lokalnego loggera - action_alert = local"
     else:
         action_alert = None
         description = None
     return action_alert, description
 
-def funkcja_testowa_3(**kwargs):
-    print("Test 3")
+def example_rule_3(**kwargs):
+    print("Test reguły 3")
     if True:
-        action_alert = "local" # remote local
-        description = "Local test"
+        action_alert = "remote" # remote local
+        description = "Test zdalnego loggera - action_alert = remote"
     else:
         action_alert = None
         description = None
