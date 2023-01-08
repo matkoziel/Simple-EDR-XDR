@@ -61,6 +61,8 @@ def use_re(regex,path):
     if(regex):
         try:
             for file in files:
+                print("Parsing file: " + file + "")
+                res.append("Parsing file: " + file + "")
                 full_path = os.path.abspath(file)
                 results = log_parser.parse_with_re(full_path,regex)
                 for result in results:
@@ -72,6 +74,8 @@ def use_re(regex,path):
     else:
         try:
             for file in files:
+                print("Parsing file: " + file + "")
+                res.append("Parsing file: " + file + "")
                 full_path = os.path.abspath(file)
                 results = log_parser.parse_with_re(full_path,'')
                 for result in results:
@@ -114,6 +118,8 @@ def use_re(regex,path):
 
     for file in files:   
         result = ""
+        print("Parsing file: " + file + "")
+        res.append("Parsing file: " + file + "")
         with evtx.Evtx(file) as event_log:
             result += e_views.XML_HEADER + "\n"
             result += "<Events>\n"
@@ -133,26 +139,38 @@ def use_re(regex,path):
 def show_pcap(path, filter):
     act_time = (time.strftime('%d-%m-%Y-%H-%M-%S'))
     res = []
-    if filter:
-        try:
-            full_path = os.path.abspath(path.name)
-            results = pcap_analysis.traffic_from_file_pyshark(full_path,filter)
-            for r in results:
-                print(r)
-                res.append(r)
-        except Exception as e:
-            print(e)
-            res.append(e)
+    files = []
+    if os.path.isdir(path):
+        pcaps = [y for x in os.walk(path) for y in glob(os.path.join(x[0], '*.pcap'))]
+        if len(pcaps)!=0:
+            for a in pcaps:
+                files.append(a)
     else:
-        try:
-            full_path = os.path.abspath(path.name)
-            results = pcap_analysis.traffic_from_file_pyshark(full_path,"")
-            for r in results:
-                print(r)
-                res.append(r)
-        except Exception as e:
-            print(e)
-            res.append(e)
+        files.append(path)
+    
+    for file in files:
+        print("Parsing file: " + file + "")
+        res.append("Parsing file: " + file + "")
+        if filter:
+            try:
+                full_path = os.path.abspath(path.name)
+                results = pcap_analysis.traffic_from_file_pyshark(full_path,filter)
+                for r in results:
+                    print(r)
+                    res.append(r)
+            except Exception as e:
+                print(e)
+                res.append(e)
+        else:
+            try:
+                full_path = os.path.abspath(path.name)
+                results = pcap_analysis.traffic_from_file_pyshark(full_path,"")
+                for r in results:
+                    print(r)
+                    res.append(r)
+            except Exception as e:
+                print(e)
+                res.append(e)
     log_action("show_pcap", res, act_time)
 
 @cli.group('remote_logger')
