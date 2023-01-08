@@ -343,6 +343,7 @@ def get_logs(agent,port,file):
         with open(file, 'wb') as f:
             f.write(response.content)
             res.append(f"File {file} saved on local machine")
+            print(f"File {file} saved on local machine")
     else:
         print(f"File {file} not found on agent {agent}")
         res.append(f"File {file} not found on agent {agent}")
@@ -378,6 +379,7 @@ def get_chosen_pcaps(agent,port,file):
         with open(file, 'wb') as f:
             f.write(response.content)
             res.append(f"File {file} saved on local machine")
+            print(f"File {file} saved on local machine")
     else:
         print(f"File {file} not found on agent {agent}")
         res.append(f"File {file} not found on agent {agent}")
